@@ -23,11 +23,23 @@ The platform uses **#0072bc** as the primary brand color, creating a professiona
 
 ## 🚀 Getting Started
 
+### 📦 Code is on GitHub
+**Repository:** https://github.com/Hrittik20/TSUSwap.git
+
+### 🌐 Deploy Online
+**Quick deployment guide:** See [DEPLOY_ONLINE.md](./DEPLOY_ONLINE.md) for step-by-step instructions to deploy to Vercel, Netlify, or Railway.
+
 ### Prerequisites
 
 - Node.js 18+ installed
-- PostgreSQL database
-- Stripe account (for payment processing)
+- PostgreSQL database (see [DATABASE_RECOMMENDATIONS.md](./DATABASE_RECOMMENDATIONS.md) for free options)
+- Stripe account (for payment processing - optional)
+
+### 📚 Documentation
+
+- **[SETUP.md](./SETUP.md)** - Detailed setup instructions
+- **[DEPLOY_ONLINE.md](./DEPLOY_ONLINE.md)** - Deployment guide
+- **[DATABASE_RECOMMENDATIONS.md](./DATABASE_RECOMMENDATIONS.md)** - Free database options
 
 ### Installation
 
