@@ -69,6 +69,26 @@ export function calculateAuctionTimeRemaining(endTime: Date | string): {
   return { isExpired: false, days, hours, minutes, seconds }
 }
 
+/**
+ * Check if an item has been listed for a long time (30+ days)
+ * This indicates the seller might be unavailable
+ */
+export function isLongListed(createdAt: Date | string): boolean {
+  const created = typeof createdAt === 'string' ? new Date(createdAt) : createdAt
+  const now = new Date()
+  const daysDiff = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24))
+  return daysDiff >= 30 // 30 days or more
+}
+
+/**
+ * Get the number of days an item has been listed
+ */
+export function getDaysListed(createdAt: Date | string): number {
+  const created = typeof createdAt === 'string' ? new Date(createdAt) : createdAt
+  const now = new Date()
+  return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24))
+}
+
 
 
 

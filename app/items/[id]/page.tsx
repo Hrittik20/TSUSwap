@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FiClock, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare } from 'react-icons/fi'
+import { FiClock, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiAlertCircle } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
 import ShareButton from '@/components/ShareButton'
 import { useLanguage } from '@/components/LanguageContext'
+import { isLongListed } from '@/lib/utils'
 
 export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession()
@@ -247,6 +248,26 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
             </div>
           )}
 
+          {isLongListed(item.createdAt) && (
+            <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <FiAlertCircle className="text-orange-500 mt-0.5 mr-3 flex-shrink-0" size={20} />
+                <div>
+                  <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-1">
+                    Item Listed for a Long Time
+                  </h4>
+                  <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">
+                    This item has been listed for {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}. 
+                    The seller may be unavailable or no longer interested in selling.
+                  </p>
+                  <p className="text-sm text-orange-700 dark:text-orange-300 font-medium">
+                    ⚠️ Please contact the seller before purchasing to confirm availability.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="card mb-6">
             <h3 className="font-semibold mb-4">{t('item.description')}</h3>
             <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{item.description}</p>
@@ -267,6 +288,9 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                 <span className="text-gray-600 dark:text-gray-400">{t('item.listed')}:</span>
                 <span className="font-medium">
                   {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                  {isLongListed(item.createdAt) && (
+                    <span className="ml-2 text-orange-600 dark:text-orange-400 text-xs">(Long listed)</span>
+                  )}
                 </span>
               </div>
             </div>

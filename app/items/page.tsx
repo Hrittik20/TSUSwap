@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FiClock, FiTag, FiSearch } from 'react-icons/fi'
+import { FiClock, FiTag, FiSearch, FiAlertCircle } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
+import { isLongListed } from '@/lib/utils'
 
 interface Item {
   id: string
@@ -144,6 +145,12 @@ export default function ItemsPage() {
                 <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-medium">
                   {item.listingType === 'AUCTION' ? 'Auction' : 'Buy Now'}
                 </span>
+                {isLongListed(item.createdAt) && (
+                  <span className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                    <FiAlertCircle size={12} />
+                    Long Listed
+                  </span>
+                )}
               </div>
 
               <h3 className="font-semibold text-lg mb-2 line-clamp-2">
@@ -167,6 +174,18 @@ export default function ItemsPage() {
                   <span>
                     Ends {formatDistanceToNow(new Date(item.auction.endTime), { addSuffix: true })}
                   </span>
+                </div>
+              )}
+
+              {isLongListed(item.createdAt) && (
+                <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-2 mb-3">
+                  <div className="flex items-center text-sm text-orange-800 dark:text-orange-200">
+                    <FiAlertCircle className="mr-1" size={14} />
+                    <span className="font-medium">Listed {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}</span>
+                  </div>
+                  <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                    Seller may be unavailable - contact before purchasing
+                  </p>
                 </div>
               )}
 

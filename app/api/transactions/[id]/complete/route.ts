@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
-import { stripe, AUCTION_COMMISSION_RATE } from '@/lib/stripe'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(
   request: Request,
@@ -30,30 +31,24 @@ export async function POST(
       )
     }
 
-    // Only buyer can confirm completion
-    if (transaction.buyerId !== (session.user as any).id) {
+    // Only seller can confirm completion for cash on meet
+    // This prevents buyers from confirming online and ghosting the seller
+    if (transaction.sellerId !== (session.user as any).id) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Only the seller can confirm this transaction' },
         { status: 403 }
       )
     }
 
-    // For card payments, capture the funds
-    if (transaction.paymentMethod === 'CARD' && transaction.stripePaymentId) {
-      const paymentIntent = await stripe.paymentIntents.capture(
-        transaction.stripePaymentId
+    // Only allow confirmation if status is PENDING
+    if (transaction.status !== 'PENDING') {
+      return NextResponse.json(
+        { error: 'Transaction is not in pending status' },
+        { status: 400 }
       )
-
-      // If there's a commission, create a transfer to the seller
-      if (transaction.commissionAmount > 0) {
-        // In a real implementation, you would:
-        // 1. Have sellers connect their Stripe accounts
-        // 2. Create a transfer to their account minus commission
-        // For now, we'll just capture the full amount
-      }
     }
 
-    // Update transaction status
+    // Update transaction status to completed
     const updatedTransaction = await prisma.transaction.update({
       where: { id: params.id },
       data: {

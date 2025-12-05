@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPackage, FiShoppingCart, FiDollarSign, FiUser } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
-import SellerWarning from '@/components/SellerWarning'
+// SellerWarning component removed - using inline warning for pending sales
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -125,8 +125,18 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Seller Warning */}
-      {sales.some((t: any) => t.status === 'FUNDS_HELD') && <SellerWarning />}
+      {/* Seller Warning for Pending Sales */}
+      {sales.some((t: any) => t.status === 'PENDING') && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-2">
+            ⚠️ Important: Seller Confirmation Required
+          </p>
+          <p className="text-sm text-yellow-700 dark:text-yellow-300">
+            You have pending sales. Only confirm transactions after you have received cash payment in person from the buyer. 
+            This prevents buyers from confirming online and then not showing up.
+          </p>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="card">
@@ -155,6 +165,90 @@ export default function DashboardPage() {
 
         {activeTab === 'selling' ? (
           <div className="space-y-4">
+            {/* Pending Sales - Need Seller Confirmation */}
+            {sales.filter((t: any) => t.status === 'PENDING').length > 0 && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+                <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-3">
+                  ⚠️ Pending Sales - Awaiting Your Confirmation
+                </h3>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
+                  These buyers have purchased your items. Please confirm only after you have received payment in person.
+                </p>
+                <div className="space-y-3">
+                  {sales
+                    .filter((t: any) => t.status === 'PENDING')
+                    .map((transaction: any) => (
+                      <div
+                        key={transaction.id}
+                        className="bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3">
+                              {transaction.item.images[0] && (
+                                <img
+                                  src={transaction.item.images[0]}
+                                  alt={transaction.item.title}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                              )}
+                              <div>
+                                <Link
+                                  href={`/items/${transaction.item.id}`}
+                                  className="font-semibold hover:text-primary dark:text-gray-100"
+                                >
+                                  {transaction.item.title}
+                                </Link>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                  Buyer: {transaction.buyer.name} (Room {transaction.buyer.roomNumber})
+                                </p>
+                                <p className="text-sm font-medium text-primary mt-1">
+                                  {transaction.amount.toLocaleString('ru-RU')} ₽
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <button
+                              onClick={async () => {
+                                if (
+                                  confirm(
+                                    'Have you received the payment in person? Only confirm after you have received the cash payment from the buyer.'
+                                  )
+                                ) {
+                                  try {
+                                    const response = await fetch(
+                                      `/api/transactions/${transaction.id}/complete`,
+                                      {
+                                        method: 'POST',
+                                      }
+                                    )
+                                    if (response.ok) {
+                                      fetchData()
+                                    } else {
+                                      const data = await response.json()
+                                      alert(data.error || 'Failed to confirm transaction')
+                                    }
+                                  } catch (error) {
+                                    alert('Failed to confirm transaction')
+                                  }
+                                }
+                              }}
+                              className="btn-primary text-sm"
+                            >
+                              Confirm Payment Received
+                            </button>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
             {userItems.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">You haven't listed any items yet</p>
@@ -251,8 +345,8 @@ export default function DashboardPage() {
                             className={`px-2 py-1 rounded text-xs ${
                               transaction.status === 'COMPLETED'
                                 ? 'bg-green-100 text-green-700'
-                                : transaction.status === 'FUNDS_HELD'
-                                ? 'bg-blue-100 text-blue-700'
+                                : transaction.status === 'PENDING'
+                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
                                 : 'bg-yellow-100 text-yellow-700'
                             }`}
                           >
@@ -265,31 +359,20 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-500 mb-2">
                         {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
                       </div>
-                      {transaction.status === 'FUNDS_HELD' && transaction.buyerId === (session?.user as any).id && (
-                        <div>
-                          <button
-                            onClick={async () => {
-                              if (confirm('Have you received and inspected the item? Only confirm if it matches the description and is in good condition.')) {
-                                await fetch(`/api/transactions/${transaction.id}/complete`, {
-                                  method: 'POST',
-                                })
-                                fetchData()
-                              }
-                            }}
-                            className="btn-primary text-sm"
-                          >
-                            Confirm Receipt
-                          </button>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Only confirm after inspecting the item!
+                      {transaction.status === 'PENDING' && transaction.buyerId === (session?.user as any).id && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-3">
+                          <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                            ⏳ Waiting for seller confirmation
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                            The seller will confirm after receiving payment. Contact them to arrange the meetup.
                           </p>
                         </div>
                       )}
-                      {transaction.status === 'FUNDS_HELD' && transaction.sellerId === (session?.user as any).id && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
-                          <p className="text-xs text-yellow-800 font-medium">⚠️ Seller Warning:</p>
-                          <p className="text-xs text-yellow-700 mt-1">
-                            DO NOT hand over the item until buyer confirms receipt in your presence!
+                      {transaction.status === 'COMPLETED' && (
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded p-2">
+                          <p className="text-xs text-green-800 dark:text-green-200 font-medium">
+                            ✓ Transaction Completed
                           </p>
                         </div>
                       )}
