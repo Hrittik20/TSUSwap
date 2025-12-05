@@ -209,35 +209,67 @@ export default function DashboardPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <button
-                              onClick={async () => {
-                                if (
-                                  confirm(
-                                    'Have you received the payment in person? Only confirm after you have received the cash payment from the buyer.'
-                                  )
-                                ) {
-                                  try {
-                                    const response = await fetch(
-                                      `/api/transactions/${transaction.id}/complete`,
-                                      {
-                                        method: 'POST',
-                                      }
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={async () => {
+                                  if (
+                                    confirm(
+                                      'Have you received the payment in person? Only confirm after you have received the cash payment from the buyer.'
                                     )
-                                    if (response.ok) {
-                                      fetchData()
-                                    } else {
-                                      const data = await response.json()
-                                      alert(data.error || 'Failed to confirm transaction')
+                                  ) {
+                                    try {
+                                      const response = await fetch(
+                                        `/api/transactions/${transaction.id}/complete`,
+                                        {
+                                          method: 'POST',
+                                        }
+                                      )
+                                      if (response.ok) {
+                                        fetchData()
+                                      } else {
+                                        const data = await response.json()
+                                        alert(data.error || 'Failed to confirm transaction')
+                                      }
+                                    } catch (error) {
+                                      alert('Failed to confirm transaction')
                                     }
-                                  } catch (error) {
-                                    alert('Failed to confirm transaction')
                                   }
-                                }
-                              }}
-                              className="btn-primary text-sm"
-                            >
-                              Confirm Payment Received
-                            </button>
+                                }}
+                                className="btn-primary text-sm"
+                              >
+                                Confirm Payment Received
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (
+                                    confirm(
+                                      'Cancel this transaction? The item will be made available for sale again. Only cancel if the buyer did not show up or did not pay.'
+                                    )
+                                  ) {
+                                    try {
+                                      const response = await fetch(
+                                        `/api/transactions/${transaction.id}/cancel`,
+                                        {
+                                          method: 'POST',
+                                        }
+                                      )
+                                      if (response.ok) {
+                                        fetchData()
+                                        alert('Transaction cancelled. Item is now available for sale again.')
+                                      } else {
+                                        const data = await response.json()
+                                        alert(data.error || 'Failed to cancel transaction')
+                                      }
+                                    } catch (error) {
+                                      alert('Failed to cancel transaction')
+                                    }
+                                  }
+                                }}
+                                className="btn-secondary text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800"
+                              >
+                                Cancel Transaction
+                              </button>
+                            </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                               {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
                             </p>
