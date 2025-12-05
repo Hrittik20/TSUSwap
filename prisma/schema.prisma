@@ -1,0 +1,153 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  profileImage  String?   // Profile picture URL
+  dormitory     String    // Mayak, Parus, etc.
+  roomNumber    String
+  phoneNumber   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  items         Item[]
+  bids          Bid[]
+  purchases     Transaction[] @relation("Buyer")
+  sales         Transaction[] @relation("Seller")
+  sentMessages  Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+  
+  @@map("users")
+}
+
+enum ItemStatus {
+  ACTIVE
+  SOLD
+  EXPIRED
+  CANCELLED
+}
+
+enum ListingType {
+  REGULAR
+  AUCTION
+}
+
+model Item {
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  price         Float?      // For regular items
+  images        String[]    // Array of image URLs
+  category      String
+  condition     String      // New, Like New, Good, Fair, etc.
+  listingType   ListingType
+  status        ItemStatus  @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  sellerId      String
+  seller        User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  auction       Auction?
+  transactions  Transaction[]
+  
+  @@map("items")
+}
+
+model Auction {
+  id            String    @id @default(cuid())
+  startPrice    Float
+  currentPrice  Float
+  reservePrice  Float?    // Minimum price seller will accept
+  startTime     DateTime  @default(now())
+  endTime       DateTime
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  itemId        String    @unique
+  item          Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  bids          Bid[]
+  
+  @@map("auctions")
+}
+
+model Bid {
+  id            String    @id @default(cuid())
+  amount        Float
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  auctionId     String
+  auction       Auction   @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId      String
+  bidder        User      @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  
+  @@map("bids")
+}
+
+enum PaymentMethod {
+  CARD
+  CASH_ON_MEET
+}
+
+enum TransactionStatus {
+  PENDING
+  FUNDS_HELD
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model Transaction {
+  id                String            @id @default(cuid())
+  amount            Float
+  commissionAmount  Float             @default(0)
+  paymentMethod     PaymentMethod
+  status            TransactionStatus @default(PENDING)
+  stripePaymentId   String?           // For card payments
+  meetingScheduled  DateTime?         // For cash on meet
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  completedAt       DateTime?
+  
+  // Relations
+  itemId        String
+  item          Item      @relation(fields: [itemId], references: [id])
+  buyerId       String
+  buyer         User      @relation("Buyer", fields: [buyerId], references: [id])
+  sellerId      String
+  seller        User      @relation("Seller", fields: [sellerId], references: [id])
+  
+  @@map("transactions")
+}
+
+model Message {
+  id            String    @id @default(cuid())
+  content       String
+  isRead        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  senderId      String
+  sender        User      @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId    String
+  receiver      User      @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@map("messages")
+}
+
+
