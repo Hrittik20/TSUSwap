@@ -21,7 +21,13 @@ export async function POST(
 
     const transaction = await prisma.transaction.findUnique({
       where: { id: params.id },
-      include: { item: true },
+      include: { 
+        item: {
+          include: {
+            auction: true,
+          },
+        },
+      },
     })
 
     if (!transaction) {
