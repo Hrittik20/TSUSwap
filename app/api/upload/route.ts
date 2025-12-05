@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
-import { existsSync, mkdirSync } from 'fs'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
+import { supabase } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
   try {
@@ -44,29 +44,45 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Storage not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads')
-    if (!existsSync(uploadsDir)) {
-      mkdirSync(uploadsDir, { recursive: true })
-    }
 
     // Generate unique filename
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 15)
     const extension = file.name.split('.').pop()
     const filename = `${timestamp}-${randomString}.${extension}`
-    const filepath = join(uploadsDir, filename)
+    const filepath = `items/${filename}`
 
-    // Write file
-    await writeFile(filepath, buffer)
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('uploads')
+      .upload(filepath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      })
 
-    // Return URL
-    const url = `/uploads/${filename}`
+    if (error) {
+      console.error('Supabase upload error:', error)
+      return NextResponse.json(
+        { error: `Failed to upload file: ${error.message}` },
+        { status: 500 }
+      )
+    }
 
-    return NextResponse.json({ url }, { status: 200 })
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('uploads')
+      .getPublicUrl(filepath)
+
+    return NextResponse.json({ url: urlData.publicUrl }, { status: 200 })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
