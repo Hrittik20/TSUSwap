@@ -56,14 +56,14 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user && token) {
-        const userId: string | number | undefined = token.id as string | number | undefined
+        const userId = token.id
         if (userId) {
           (session.user as any).id = typeof userId === 'string' ? userId : globalThis.String(userId)
         } else {
           (session.user as any).id = ''
         }
-        (session.user as any).dormitory = (token.dormitory !== undefined && typeof token.dormitory === 'string') ? token.dormitory : undefined
-        (session.user as any).roomNumber = (token.roomNumber !== undefined && typeof token.roomNumber === 'string') ? token.roomNumber : undefined
+        (session.user as any).dormitory = token.dormitory as string | undefined
+        (session.user as any).roomNumber = token.roomNumber as string | undefined
       }
       return session
     },
