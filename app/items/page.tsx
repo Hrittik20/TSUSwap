@@ -70,7 +70,7 @@ export default function ItemsPage() {
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Browse Items</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 dark:text-gray-100">Browse Items</h1>
 
         {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -112,11 +112,11 @@ export default function ItemsPage() {
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">Loading items...</p>
+          <p className="text-gray-600 dark:text-gray-300">Loading items...</p>
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">No items found</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">No items found</p>
           <Link href="/items/create" className="btn-primary">
             List Your First Item
           </Link>

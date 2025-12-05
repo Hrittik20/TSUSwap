@@ -73,7 +73,7 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -83,7 +83,7 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="card text-center py-12">
-          <p className="text-gray-600 mb-4">Profile not found</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Profile not found</p>
           <Link href="/dashboard" className="btn-primary">
             Go to Dashboard
           </Link>
@@ -101,8 +101,8 @@ export default function ProfilePage() {
           <FiArrowLeft className="mr-2" />
           Back to Dashboard
         </Link>
-        <h1 className="text-3xl font-bold mb-2">My Profile</h1>
-        <p className="text-gray-600">Manage your account information</p>
+        <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">My Profile</h1>
+        <p className="text-gray-600 dark:text-gray-300">Manage your account information</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
@@ -143,9 +143,9 @@ export default function ProfilePage() {
                 )}
               </label>
             </div>
-            <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
-            <p className="text-gray-600 mb-1">TSU Student</p>
-            <p className="text-sm text-gray-500 mb-4">
+            <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">{user.name}</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-1">TSU Student</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Member since {new Date(user.createdAt).toLocaleDateString()}
             </p>
             <Link href="/dashboard" className="btn-primary w-full block text-center">
@@ -158,29 +158,29 @@ export default function ProfilePage() {
         <div className="md:col-span-2 space-y-6">
           {/* Personal Information */}
           <div className="card">
-            <h3 className="text-xl font-bold mb-4">Personal Information</h3>
+            <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Personal Information</h3>
             <div className="space-y-4">
               <div className="flex items-start">
-                <FiUser className="text-gray-400 mt-1 mr-3" />
+                <FiUser className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Full Name</p>
-                  <p className="font-medium">{user.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
+                  <p className="font-medium dark:text-gray-200">{user.name}</p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <FiMail className="text-gray-400 mt-1 mr-3" />
+                <FiMail className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{user.email}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="font-medium dark:text-gray-200">{user.email}</p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <FiPhone className="text-gray-400 mt-1 mr-3" />
+                <FiPhone className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Phone Number</p>
-                  <p className="font-medium">{user.phoneNumber || 'Not provided'}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone Number</p>
+                  <p className="font-medium dark:text-gray-200">{user.phoneNumber || 'Not provided'}</p>
                 </div>
               </div>
             </div>
@@ -188,21 +188,21 @@ export default function ProfilePage() {
 
           {/* Location Information */}
           <div className="card">
-            <h3 className="text-xl font-bold mb-4">Dorm Information</h3>
+            <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Dorm Information</h3>
             <div className="space-y-4">
               <div className="flex items-start">
-                <FiMapPin className="text-gray-400 mt-1 mr-3" />
+                <FiMapPin className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Dormitory</p>
-                  <p className="font-medium text-lg">{dormitoryLabel}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Dormitory</p>
+                  <p className="font-medium text-lg dark:text-gray-200">{dormitoryLabel}</p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <FiMapPin className="text-gray-400 mt-1 mr-3" />
+                <FiMapPin className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500">Room Number</p>
-                  <p className="font-medium text-lg">Room {user.roomNumber}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Room Number</p>
+                  <p className="font-medium text-lg dark:text-gray-200">Room {user.roomNumber}</p>
                 </div>
               </div>
 
@@ -217,19 +217,19 @@ export default function ProfilePage() {
 
           {/* Account Stats */}
           <div className="card">
-            <h3 className="text-xl font-bold mb-4">Account Statistics</h3>
+            <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Account Statistics</h3>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-3xl font-bold text-primary">{user._count?.items || 0}</p>
-                <p className="text-sm text-gray-600">Listings</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Listings</p>
               </div>
               <div>
                 <p className="text-3xl font-bold text-green-600">{user._count?.sales || 0}</p>
-                <p className="text-sm text-gray-600">Sold</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Sold</p>
               </div>
               <div>
                 <p className="text-3xl font-bold text-blue-600">{user._count?.purchases || 0}</p>
-                <p className="text-sm text-gray-600">Purchased</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Purchased</p>
               </div>
             </div>
           </div>

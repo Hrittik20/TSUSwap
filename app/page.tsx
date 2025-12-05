@@ -34,46 +34,46 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-16 container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">
+        <h2 className="text-3xl font-bold text-center mb-12 dark:text-gray-100">
           {t('home.whyChoose')}
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="text-center">
-            <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiShoppingBag className="text-3xl text-primary" />
+            <div className="bg-primary-100 dark:bg-primary-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiShoppingBag className="text-3xl text-primary dark:text-primary-300" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{t('home.feature1.title')}</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.feature1.title')}</h3>
+            <p className="text-gray-600 dark:text-gray-300">
               {t('home.feature1.desc')}
             </p>
           </div>
 
           <div className="text-center">
-            <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiDollarSign className="text-3xl text-primary" />
+            <div className="bg-primary-100 dark:bg-primary-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiDollarSign className="text-3xl text-primary dark:text-primary-300" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{t('home.feature2.title')}</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.feature2.title')}</h3>
+            <p className="text-gray-600 dark:text-gray-300">
               {t('home.feature2.desc')}
             </p>
           </div>
 
           <div className="text-center">
-            <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiShield className="text-3xl text-primary" />
+            <div className="bg-primary-100 dark:bg-primary-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiShield className="text-3xl text-primary dark:text-primary-300" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{t('home.feature3.title')}</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.feature3.title')}</h3>
+            <p className="text-gray-600 dark:text-gray-300">
               {t('home.feature3.desc')}
             </p>
           </div>
 
           <div className="text-center">
-            <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiUsers className="text-3xl text-primary" />
+            <div className="bg-primary-100 dark:bg-primary-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiUsers className="text-3xl text-primary dark:text-primary-300" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{t('home.feature4.title')}</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.feature4.title')}</h3>
+            <p className="text-gray-600 dark:text-gray-300">
               {t('home.feature4.desc')}
             </p>
           </div>
@@ -81,38 +81,38 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-gray-100 py-16">
+      <section className="bg-gray-100 dark:bg-gray-800 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-3xl font-bold text-center mb-12 dark:text-gray-100">
             {t('home.howItWorks')}
           </h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-gray-900/50">
               <div className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 1
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('home.step1.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.step1.title')}</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 {t('home.step1.desc')}
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-gray-900/50">
               <div className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 2
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('home.step2.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.step2.title')}</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 {t('home.step2.desc')}
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md dark:shadow-gray-900/50">
               <div className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 3
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('home.step3.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.step3.title')}</h3>
+              <p className="text-gray-600 dark:text-gray-300">
                 {t('home.step3.desc')}
               </p>
             </div>
@@ -122,10 +122,10 @@ export default function Home() {
 
       {/* Call to Action */}
       <section className="py-16 container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold mb-6">
+        <h2 className="text-3xl font-bold mb-6 dark:text-gray-100">
           {t('home.cta.title')}
         </h2>
-        <p className="text-xl text-gray-600 mb-8">
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
           {t('home.cta.desc')}
         </p>
         <Link href="/register" className="btn-primary text-lg px-8 py-3">

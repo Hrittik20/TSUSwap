@@ -70,12 +70,12 @@ export default function DashboardPage() {
     <div className="container mx-auto px-4 py-4 sm:py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">My Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">My Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Welcome back, {session?.user?.name}!
           </p>
           {(session?.user as any)?.dormitory && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               📍 {(session?.user as any).dormitory.charAt(0).toUpperCase() + (session?.user as any).dormitory.slice(1)}, Room {(session?.user as any)?.roomNumber}
             </p>
           )}
@@ -91,7 +91,7 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 mb-1">Active Listings</p>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">Active Listings</p>
               <p className="text-3xl font-bold text-primary">{activeItems.length}</p>
             </div>
             <div className="bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center">
@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 mb-1">Items Sold</p>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">Items Sold</p>
               <p className="text-3xl font-bold text-green-600">{soldItems.length}</p>
             </div>
             <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center">
@@ -115,7 +115,7 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 mb-1">Purchases</p>
+              <p className="text-gray-600 dark:text-gray-300 mb-1">Purchases</p>
               <p className="text-3xl font-bold text-blue-600">{purchases.length}</p>
             </div>
             <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {userItems.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600 mb-4">You haven't listed any items yet</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">You haven't listed any items yet</p>
                 <Link href="/items/create" className="btn-primary">
                   Create Your First Listing
                 </Link>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                         >
                           {item.title}
                         </Link>
-                        <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 line-clamp-2">
                           {item.description}
                         </p>
                         <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                             className={`px-2 py-1 rounded text-xs ${
                               item.status === 'ACTIVE'
                                 ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 text-gray-700'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {item.status}
@@ -215,7 +215,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {purchases.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600 mb-4">You haven't made any purchases yet</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">You haven't made any purchases yet</p>
                 <Link href="/items" className="btn-primary">
                   Browse Items
                 </Link>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                         >
                           {transaction.item.title}
                         </Link>
-                        <p className="text-gray-600 text-sm mt-1">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
                           Seller: {transaction.seller.name} (Room {transaction.seller.roomNumber})
                         </p>
                         <div className="flex items-center space-x-4 mt-2 text-sm">

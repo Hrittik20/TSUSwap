@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
+import { isValidEmail } from '@/lib/emailValidation'
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -16,6 +17,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { email, password, name, dormitory, roomNumber, phoneNumber } = registerSchema.parse(body)
+
+    // Validate email (prevent fake/spam emails)
+    const emailValidation = isValidEmail(email)
+    if (!emailValidation.valid) {
+      return NextResponse.json(
+        { error: emailValidation.reason || 'Invalid email address' },
+        { status: 400 }
+      )
+    }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({

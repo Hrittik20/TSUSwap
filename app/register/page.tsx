@@ -62,13 +62,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Join TSUSwap
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Create your account and start trading
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Full Name
               </label>
               <input
@@ -96,7 +96,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('auth.email')}
               </label>
               <input
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="dormitory" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="dormitory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Dormitory / Общежитие
               </label>
               <select
@@ -131,7 +131,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="roomNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="roomNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('auth.roomNumber')}
               </label>
               <input
@@ -146,7 +146,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Phone Number (Optional)
               </label>
               <input
@@ -159,7 +159,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <input
@@ -171,7 +171,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Must be at least 6 characters</p>
             </div>
 
             <button
@@ -184,7 +184,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Already have an account?{' '}
               <Link href="/login" className="text-primary hover:text-primary-600 font-medium">
                 Sign in

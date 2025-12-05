@@ -205,7 +205,7 @@ export default function CreateItemPage() {
         </div>
 
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Title *
           </label>
           <input
@@ -220,7 +220,7 @@ export default function CreateItemPage() {
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Description *
           </label>
           <textarea
@@ -236,7 +236,7 @@ export default function CreateItemPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Category *
             </label>
             <select
@@ -256,7 +256,7 @@ export default function CreateItemPage() {
           </div>
 
           <div>
-            <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="condition" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Condition *
             </label>
             <select
@@ -278,7 +278,7 @@ export default function CreateItemPage() {
 
         {formData.listingType === 'REGULAR' ? (
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Price (₽) *
             </label>
             <input
@@ -296,7 +296,7 @@ export default function CreateItemPage() {
         ) : (
           <div className="space-y-4">
             <div>
-              <label htmlFor="startPrice" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="startPrice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Starting Price (₽) *
               </label>
               <input
@@ -316,7 +316,7 @@ export default function CreateItemPage() {
             </div>
 
             <div>
-              <label htmlFor="auctionDuration" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="auctionDuration" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Auction Duration (hours) *
               </label>
               <select
@@ -341,7 +341,7 @@ export default function CreateItemPage() {
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Images * (Upload or add URL)
           </label>
           <div className="space-y-3">
@@ -386,7 +386,7 @@ export default function CreateItemPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">OR</span>
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">OR</span>
               </div>
             </div>
 
