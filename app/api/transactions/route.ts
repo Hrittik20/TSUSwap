@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
-import { stripe, AUCTION_COMMISSION_RATE } from '@/lib/stripe'
+// Stripe imports removed - card payments disabled for now
 import { z } from 'zod'
 
 const transactionSchema = z.object({
   itemId: z.string(),
-  paymentMethod: z.enum(['CARD', 'CASH_ON_MEET']),
+  paymentMethod: z.enum(['CASH_ON_MEET']),
   meetingScheduled: z.string().optional(),
 })
 
@@ -55,35 +55,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // Calculate amount and commission
+    // Calculate amount (no commission for now)
     let amount = item.price || 0
-    let commissionAmount = 0
 
     if (item.listingType === 'AUCTION' && item.auction) {
       amount = item.auction.currentPrice
-      commissionAmount = amount * AUCTION_COMMISSION_RATE
     }
 
-    let stripePaymentId = null
-
-    // Handle card payment with escrow
-    if (data.paymentMethod === 'CARD') {
-      // Create a payment intent with Stripe
-      // Funds will be held until seller confirms delivery
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to kopeks (1 RUB = 100 kopeks)
-        currency: 'rub',
-        metadata: {
-          itemId: item.id,
-          sellerId: item.sellerId,
-          buyerId: (session.user as any).id,
-          commissionAmount: commissionAmount.toFixed(2),
-        },
-        // Use manual capture to hold funds
-        capture_method: 'manual',
-      })
-
-      stripePaymentId = paymentIntent.id
+    // Card payments disabled for now - only cash on meet
+    if (data.paymentMethod !== 'CASH_ON_MEET') {
+      return NextResponse.json(
+        { error: 'Only cash on meet is available' },
+        { status: 400 }
+      )
     }
 
     // Create transaction
@@ -106,10 +90,10 @@ export async function POST(request: Request) {
       return tx.transaction.create({
         data: {
           amount,
-          commissionAmount,
+          commissionAmount: 0, // No commission for now
           paymentMethod: data.paymentMethod,
-          status: data.paymentMethod === 'CARD' ? 'FUNDS_HELD' : 'PENDING',
-          stripePaymentId,
+          status: 'PENDING', // Cash on meet only
+          stripePaymentId: null, // Card payments disabled
           meetingScheduled: data.meetingScheduled ? new Date(data.meetingScheduled) : null,
           itemId: item.id,
           buyerId: (session.user as any).id,
@@ -141,7 +125,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       transaction,
-      ...(stripePaymentId && { clientSecret: (await stripe.paymentIntents.retrieve(stripePaymentId)).client_secret }),
     }, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {

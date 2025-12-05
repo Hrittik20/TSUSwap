@@ -37,8 +37,9 @@ export default function ShareButton({ item }: ShareButtonProps) {
     ? item.auction?.currentPrice 
     : item.price
 
-  const shareTitle = `${item.title} - ${price?.toLocaleString('ru-RU')} ₽`
-  const shareText = `Смотрите этот товар на TSUSwap: ${item.title}\n\nЦена: ${price?.toLocaleString('ru-RU')} ₽\n${item.description.substring(0, 100)}...\n\n`
+  const listingType = item.listingType === 'AUCTION' ? 'Auction' : 'Buy Now'
+  const shareTitle = `${item.title} - ${price?.toLocaleString('en-US')} ₽ | TSUSwap`
+  const shareText = `Check out this item on TSUSwap!\n\n${item.title}\n${listingType}: ${price?.toLocaleString('en-US')} ₽\n\n${item.description.substring(0, 150)}${item.description.length > 150 ? '...' : ''}\n\nView it here:`
 
   const handleNativeShare = async () => {
     if (navigator.share) {
@@ -78,20 +79,20 @@ export default function ShareButton({ item }: ShareButtonProps) {
     <>
       <button
         onClick={handleNativeShare}
-        className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+        className="flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors font-medium"
       >
-        <FiShare2 />
+        <FiShare2 size={18} />
         <span>Share</span>
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">Share Item</h3>
+              <h3 className="text-xl font-bold dark:text-gray-100">Share Item</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <FiX size={24} />
               </button>
@@ -103,7 +104,7 @@ export default function ShareButton({ item }: ShareButtonProps) {
                 href={shareLinks.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-green-50 transition-colors border border-gray-200"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="bg-green-500 text-white p-2 rounded-lg flex items-center justify-center" style={{ width: '40px', height: '40px' }}>
@@ -112,8 +113,8 @@ export default function ShareButton({ item }: ShareButtonProps) {
                   </svg>
                 </div>
                 <div>
-                  <div className="font-medium">WhatsApp</div>
-                  <div className="text-sm text-gray-500">Share in chat or group</div>
+                  <div className="font-medium dark:text-gray-100">WhatsApp</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Share in chat or group</div>
                 </div>
               </a>
 
@@ -122,7 +123,7 @@ export default function ShareButton({ item }: ShareButtonProps) {
                 href={shareLinks.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 transition-colors border border-gray-200"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="bg-blue-500 text-white p-2 rounded-lg flex items-center justify-center" style={{ width: '40px', height: '40px' }}>
@@ -131,8 +132,8 @@ export default function ShareButton({ item }: ShareButtonProps) {
                   </svg>
                 </div>
                 <div>
-                  <div className="font-medium">Telegram</div>
-                  <div className="text-sm text-gray-500">Share in chat or group</div>
+                  <div className="font-medium dark:text-gray-100">Telegram</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Share in chat or group</div>
                 </div>
               </a>
 
@@ -141,15 +142,15 @@ export default function ShareButton({ item }: ShareButtonProps) {
                 href={shareLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 transition-colors border border-gray-200"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="bg-blue-600 text-white p-2 rounded-lg">
                   <FiFacebook size={24} />
                 </div>
                 <div>
-                  <div className="font-medium">Facebook</div>
-                  <div className="text-sm text-gray-500">Share on timeline</div>
+                  <div className="font-medium dark:text-gray-100">Facebook</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Share on timeline</div>
                 </div>
               </a>
 
@@ -158,46 +159,46 @@ export default function ShareButton({ item }: ShareButtonProps) {
                 href={shareLinks.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-sky-50 transition-colors border border-gray-200"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="bg-sky-500 text-white p-2 rounded-lg">
                   <FiTwitter size={24} />
                 </div>
                 <div>
-                  <div className="font-medium">Twitter</div>
-                  <div className="text-sm text-gray-500">Share as tweet</div>
+                  <div className="font-medium dark:text-gray-100">Twitter</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Share as tweet</div>
                 </div>
               </a>
 
               {/* Email */}
               <a
                 href={shareLinks.email}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
                 onClick={() => setIsOpen(false)}
               >
                 <div className="bg-gray-600 text-white p-2 rounded-lg">
                   <FiMail size={24} />
                 </div>
                 <div>
-                  <div className="font-medium">Email</div>
-                  <div className="text-sm text-gray-500">Send via email</div>
+                  <div className="font-medium dark:text-gray-100">Email</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Send via email</div>
                 </div>
               </a>
 
               {/* Copy Link */}
               <button
                 onClick={copyLink}
-                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-primary-50 transition-colors border border-gray-200"
+                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors border border-gray-200 dark:border-gray-700"
               >
                 <div className="bg-primary text-white p-2 rounded-lg">
                   {copied ? <FiCheck size={24} /> : <FiLink size={24} />}
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-medium">
+                  <div className="font-medium dark:text-gray-100">
                     {copied ? 'Link Copied!' : 'Copy Link'}
                   </div>
-                  <div className="text-sm text-gray-500 truncate">{shareUrl}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{shareUrl}</div>
                 </div>
               </button>
             </div>

@@ -99,13 +99,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
       }
 
       const data = await response.json()
-      
-      if (paymentMethod === 'CARD' && data.clientSecret) {
-        // In a real app, you would integrate Stripe Elements here
-        alert('Card payment will be processed. Check your dashboard for transaction details.')
-      } else {
-        alert('Purchase successful! The seller will contact you to arrange meetup.')
-      }
+      alert('Purchase successful! The seller will contact you to arrange meetup.')
       
       router.push('/dashboard')
     } catch (error) {
@@ -234,47 +228,14 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
           {!isAuction && !isOwner && session && (
             <div className="card mb-6">
               <h3 className="font-semibold mb-4">{t('item.purchaseOptions')}</h3>
-              <div className="space-y-3 mb-4">
-                <label className="flex items-center p-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-primary dark:hover:border-primary">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="CASH_ON_MEET"
-                    checked={paymentMethod === 'CASH_ON_MEET'}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
-                    className="mr-3"
-                  />
+              <div className="mb-4">
+                <div className="flex items-center p-3 border-2 border-primary dark:border-primary rounded-lg bg-primary-50 dark:bg-primary-900/20">
                   <div>
                     <div className="font-medium">{t('item.cashOnMeet')}</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">No fees, instant exchange</div>
                   </div>
-                </label>
-                <label className="flex items-center p-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-primary dark:hover:border-primary">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="CARD"
-                    checked={paymentMethod === 'CARD'}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
-                    className="mr-3"
-                  />
-                  <div>
-                    <div className="font-medium">{t('item.cardPayment')}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Secure with escrow protection</div>
-                  </div>
-                </label>
-              </div>
-
-              {paymentMethod === 'CARD' && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">🛡️ Buyer Protection:</p>
-                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                    <li>• Funds held until you confirm receipt</li>
-                    <li>• Inspect item before confirming</li>
-                    <li>• Money only released when you approve</li>
-                  </ul>
                 </div>
-              )}
+              </div>
 
               <button
                 onClick={handleBuyNow}

@@ -198,7 +198,7 @@ export default function CreateItemPage() {
               />
               <div>
                 <div className="font-medium">Auction</div>
-                <div className="text-sm text-gray-500">5% commission</div>
+                <div className="text-sm text-gray-500">Cash on meet only</div>
               </div>
             </label>
           </div>
