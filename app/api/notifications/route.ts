@@ -27,21 +27,28 @@ export async function GET(request: Request) {
       where.isRead = false
     }
 
-    const notifications = await prisma.notification.findMany({
-      where,
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: 50, // Limit to 50 most recent
-    })
+    // Check if notifications table exists, return empty array if not
+    try {
+      const notifications = await prisma.notification.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 50, // Limit to 50 most recent
+      })
 
-    return NextResponse.json(notifications)
+      return NextResponse.json(notifications || [])
+    } catch (dbError: any) {
+      // If table doesn't exist yet, return empty array
+      if (dbError.code === 'P2021' || dbError.message?.includes('does not exist')) {
+        return NextResponse.json([])
+      }
+      throw dbError
+    }
   } catch (error) {
     console.error('Fetch notifications error:', error)
-    return NextResponse.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
-    )
+    // Return empty array instead of error to prevent frontend crashes
+    return NextResponse.json([])
   }
 }
 

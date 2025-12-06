@@ -293,7 +293,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               userItems.map((item) => (
-                <div key={item.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                <div key={item.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700">
                   <div className="flex items-start justify-between">
                     <div className="flex space-x-4 flex-1">
                       {item.images[0] && (
@@ -306,14 +306,14 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <Link
                           href={`/items/${item.id}`}
-                          className="text-lg font-semibold hover:text-primary"
+                          className="text-lg font-semibold hover:text-primary dark:text-gray-100"
                         >
                           {item.title}
                         </Link>
                         <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 line-clamp-2">
                           {item.description}
                         </p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                           <span className="font-medium text-primary">
                             {(item.listingType === 'AUCTION'
                               ? item.auction?.currentPrice
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right text-sm text-gray-500">
+                    <div className="text-right text-sm text-gray-500 dark:text-gray-400">
                       {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                     </div>
                   </div>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               purchases.map((transaction) => (
-                <div key={transaction.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                <div key={transaction.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700">
                   <div className="flex items-start justify-between">
                     <div className="flex space-x-4 flex-1">
                       {transaction.item.images[0] && (
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                       <div className="flex-1">
                         <Link
                           href={`/items/${transaction.item.id}`}
-                          className="text-lg font-semibold hover:text-primary"
+                          className="text-lg font-semibold hover:text-primary dark:text-gray-100"
                         >
                           {transaction.item.title}
                         </Link>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                         </p>
                         <div className="flex items-center space-x-4 mt-2 text-sm">
                           <span className="font-medium text-primary">{transaction.amount.toLocaleString('ru-RU')} ₽</span>
-                          <span className="text-gray-500">
+                          <span className="text-gray-500 dark:text-gray-400">
                             {transaction.paymentMethod === 'CARD' ? 'Card Payment' : 'Cash on Meet'}
                           </span>
                           <span
@@ -391,7 +391,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-500 mb-2">
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                         {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
                       </div>
                       {transaction.status === 'PENDING' && transaction.buyerId === (session?.user as any).id && (

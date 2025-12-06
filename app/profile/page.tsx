@@ -200,7 +200,7 @@ export default function ProfilePage() {
                 )}
               </label>
             </div>
-            <h2 className="text-2xl font-bold mb-2 dark:text-gray-100">{user.name}</h2>
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">{user.name}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-1">TSU Student</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Member since {new Date(user.createdAt).toLocaleDateString()}
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                       className="input-field"
                     />
                   ) : (
-                    <p className="font-medium dark:text-gray-200">{user.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-200">{user.name}</p>
                   )}
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function ProfilePage() {
                 <FiMail className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                  <p className="font-medium dark:text-gray-200">{user.email}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-200">{user.email}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                       placeholder="Optional"
                     />
                   ) : (
-                    <p className="font-medium dark:text-gray-200">{user.phoneNumber || 'Not provided'}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-200">{user.phoneNumber || 'Not provided'}</p>
                   )}
                 </div>
               </div>
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                       ))}
                     </select>
                   ) : (
-                    <p className="font-medium text-lg dark:text-gray-200">{dormitoryLabel}</p>
+                    <p className="font-medium text-lg text-gray-900 dark:text-gray-200">{dormitoryLabel}</p>
                   )}
                 </div>
               </div>
@@ -332,7 +332,7 @@ export default function ProfilePage() {
                       className="input-field"
                     />
                   ) : (
-                    <p className="font-medium text-lg dark:text-gray-200">Room {user.roomNumber}</p>
+                    <p className="font-medium text-lg text-gray-900 dark:text-gray-200">Room {user.roomNumber}</p>
                   )}
                 </div>
               </div>

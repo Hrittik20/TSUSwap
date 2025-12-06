@@ -46,10 +46,14 @@ export default function MessagesPage() {
       const response = await fetch('/api/messages/conversations')
       if (response.ok) {
         const data = await response.json()
-        setConversations(data)
+        // Ensure data is an array
+        setConversations(Array.isArray(data) ? data : [])
+      } else {
+        setConversations([])
       }
     } catch (error) {
       console.error('Failed to fetch conversations:', error)
+      setConversations([])
     } finally {
       setLoadingConversations(false)
     }
@@ -65,10 +69,16 @@ export default function MessagesPage() {
     try {
       setLoadingMessages(true)
       const response = await fetch(`/api/messages?userId=${selectedUserId}`)
-      const data = await response.json()
-      setMessages(data)
+      if (response.ok) {
+        const data = await response.json()
+        // Ensure data is an array
+        setMessages(Array.isArray(data) ? data : [])
+      } else {
+        setMessages([])
+      }
     } catch (error) {
       console.error('Failed to fetch messages:', error)
+      setMessages([])
     } finally {
       setLoadingMessages(false)
     }

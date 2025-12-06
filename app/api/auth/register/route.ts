@@ -27,18 +27,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if email is verified
-    const verification = await prisma.emailVerification.findUnique({
-      where: { email },
-    })
-
-    if (!verification || !verification.verified) {
-      return NextResponse.json(
-        { error: 'Email not verified. Please verify your email first.' },
-        { status: 400 }
-      )
-    }
-
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },

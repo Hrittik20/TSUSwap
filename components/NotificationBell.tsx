@@ -40,11 +40,15 @@ export default function NotificationBell() {
       const response = await fetch('/api/notifications?unreadOnly=true')
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data)
-        setUnreadCount(data.length)
+        // Ensure data is an array
+        const notificationsArray = Array.isArray(data) ? data : []
+        setNotifications(notificationsArray)
+        setUnreadCount(notificationsArray.length)
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
+      setNotifications([])
+      setUnreadCount(0)
     }
   }
 
