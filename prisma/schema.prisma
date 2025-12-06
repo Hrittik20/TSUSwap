@@ -28,6 +28,7 @@ model User {
   sales         Transaction[] @relation("Seller")
   sentMessages  Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
+  notifications Notification[]
   
   @@map("users")
 }
@@ -148,6 +149,32 @@ model Message {
   receiver      User      @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   
   @@map("messages")
+}
+
+enum NotificationType {
+  MESSAGE
+  TRANSACTION_CREATED
+  TRANSACTION_COMPLETED
+  TRANSACTION_CANCELLED
+  BID_PLACED
+  AUCTION_ENDED
+}
+
+model Notification {
+  id            String            @id @default(cuid())
+  type          NotificationType
+  title         String
+  message       String
+  isRead        Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  
+  // Relations
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relatedItemId String?
+  relatedTransactionId String?
+  
+  @@map("notifications")
 }
 
 

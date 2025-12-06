@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,25 @@ export async function POST(
         status: 'COMPLETED',
         completedAt: new Date(),
       },
+      include: {
+        item: true,
+        buyer: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    // Create notification for buyer
+    await createNotification({
+      userId: updatedTransaction.buyerId,
+      type: 'TRANSACTION_COMPLETED',
+      title: 'Transaction Completed',
+      message: `Your purchase of "${updatedTransaction.item.title}" has been confirmed by the seller`,
+      relatedItemId: updatedTransaction.item.id,
+      relatedTransactionId: updatedTransaction.id,
     })
 
     return NextResponse.json(updatedTransaction)

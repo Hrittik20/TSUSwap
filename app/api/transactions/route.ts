@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
 // Stripe imports removed - card payments disabled for now
 import { z } from 'zod'
+import { createNotification } from '@/lib/notifications'
 
 const transactionSchema = z.object({
   itemId: z.string(),
@@ -121,6 +122,25 @@ export async function POST(request: Request) {
           },
         },
       })
+    })
+
+    // Create notifications
+    await createNotification({
+      userId: transaction.sellerId,
+      type: 'TRANSACTION_CREATED',
+      title: 'New Purchase',
+      message: `${transaction.buyer.name} purchased "${transaction.item.title}"`,
+      relatedItemId: transaction.item.id,
+      relatedTransactionId: transaction.id,
+    })
+
+    await createNotification({
+      userId: transaction.buyerId,
+      type: 'TRANSACTION_CREATED',
+      title: 'Purchase Confirmed',
+      message: `Your purchase of "${transaction.item.title}" is pending seller confirmation`,
+      relatedItemId: transaction.item.id,
+      relatedTransactionId: transaction.id,
     })
 
     return NextResponse.json({

@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { FiUser, FiLogOut, FiMessageSquare, FiPlusCircle, FiShoppingBag, FiMenu, FiX } from 'react-icons/fi'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeToggle from './ThemeToggle'
+import NotificationBell from './NotificationBell'
 import { useLanguage } from './LanguageContext'
 
 export default function Navbar() {
@@ -51,6 +52,8 @@ export default function Navbar() {
                   <FiMessageSquare />
                   <span>{t('nav.messages')}</span>
                 </Link>
+
+                <NotificationBell />
 
                 <Link
                   href="/dashboard"
@@ -149,6 +152,10 @@ export default function Navbar() {
                     <FiMessageSquare />
                     <span>{t('nav.messages')}</span>
                   </Link>
+
+                  <div className="px-4 py-3">
+                    <NotificationBell />
+                  </div>
 
                   <Link
                     href="/dashboard"

@@ -7,11 +7,13 @@ import Link from 'next/link'
 import { FiUser, FiMapPin, FiPhone, FiMail, FiEdit2, FiArrowLeft, FiCamera } from 'react-icons/fi'
 import { useLanguage } from '@/components/LanguageContext'
 import { getDormitoryLabel } from '@/lib/dormitories'
+import { useToast } from '@/components/ToastProvider'
 
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t, language } = useLanguage()
+  const { showToast } = useToast()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -52,15 +54,16 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         const data = await response.json()
-        alert(data.error || 'Failed to upload image')
+        showToast(data.error || 'Failed to upload image', 'error')
         return
       }
 
       const data = await response.json()
+      showToast('Profile image updated successfully!', 'success')
       // Refresh profile to show new image
       await fetchProfile()
     } catch (error) {
-      alert('Failed to upload image')
+      showToast('Failed to upload image', 'error')
     } finally {
       setUploading(false)
       // Reset input

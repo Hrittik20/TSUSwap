@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,6 +84,32 @@ export async function POST(
 
       return cancelledTransaction
     })
+
+    // Get transaction with relations for notification
+    const transactionWithRelations = await prisma.transaction.findUnique({
+      where: { id: params.id },
+      include: {
+        item: true,
+        buyer: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    if (transactionWithRelations) {
+      // Create notification for buyer
+      await createNotification({
+        userId: transactionWithRelations.buyerId,
+        type: 'TRANSACTION_CANCELLED',
+        title: 'Transaction Cancelled',
+        message: `The transaction for "${transactionWithRelations.item.title}" has been cancelled by the seller. The item is now available for purchase again.`,
+        relatedItemId: transactionWithRelations.item.id,
+        relatedTransactionId: transactionWithRelations.id,
+      })
+    }
 
     return NextResponse.json(updatedTransaction)
   } catch (error) {

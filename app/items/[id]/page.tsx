@@ -9,11 +9,13 @@ import { formatDistanceToNow } from 'date-fns'
 import ShareButton from '@/components/ShareButton'
 import { useLanguage } from '@/components/LanguageContext'
 import { isLongListed } from '@/lib/utils'
+import { useToast } from '@/components/ToastProvider'
 
 export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession()
   const router = useRouter()
   const { t, language } = useLanguage()
+  const { showToast } = useToast()
   const [item, setItem] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [bidAmount, setBidAmount] = useState('')
@@ -59,14 +61,14 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
 
       if (!response.ok) {
         const data = await response.json()
-        alert(data.error || 'Failed to place bid')
+        showToast(data.error || 'Failed to place bid', 'error')
         return
       }
 
       await fetchItem()
-      alert('Bid placed successfully!')
+      showToast('Bid placed successfully!', 'success')
     } catch (error) {
-      alert('Failed to place bid')
+      showToast('Failed to place bid', 'error')
     } finally {
       setProcessing(false)
     }
@@ -95,16 +97,16 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
 
       if (!response.ok) {
         const data = await response.json()
-        alert(data.error || 'Failed to create transaction')
+        showToast(data.error || 'Failed to create transaction', 'error')
         return
       }
 
       const data = await response.json()
-      alert('Purchase successful! The seller will contact you to arrange meetup.')
+      showToast('Purchase successful! The seller will contact you to arrange meetup.', 'success')
       
       router.push('/dashboard')
     } catch (error) {
-      alert('Failed to complete purchase')
+      showToast('Failed to complete purchase', 'error')
     } finally {
       setProcessing(false)
     }

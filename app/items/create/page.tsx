@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ToastProvider'
 
 export default function CreateItemPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -59,16 +61,23 @@ export default function CreateItemPage() {
 
       if (!response.ok) {
         const data = await response.json()
-        setError(data.error || 'Failed to upload image')
+        const errorMsg = data.error || 'Failed to upload image'
+        setError(errorMsg)
+        showToast(errorMsg, 'error')
         return
       }
 
       const data = await response.json()
       if (data.url && !formData.images.includes(data.url)) {
+        if (formData.images.length >= 5) {
+          showToast('Maximum 5 images allowed', 'warning')
+          return
+        }
         setFormData({
           ...formData,
           images: [...formData.images, data.url],
         })
+        showToast('Image added successfully', 'success', 2000)
       }
     } catch (error) {
       setError('Failed to upload image')
@@ -81,10 +90,15 @@ export default function CreateItemPage() {
 
   const handleImageUrl = (url: string) => {
     if (url && !formData.images.includes(url)) {
+      if (formData.images.length >= 5) {
+        showToast('Maximum 5 images allowed', 'warning')
+        return
+      }
       setFormData({
         ...formData,
         images: [...formData.images, url],
       })
+      showToast('Image added successfully', 'success', 2000)
     }
   }
 
@@ -144,14 +158,19 @@ export default function CreateItemPage() {
 
       if (!response.ok) {
         const data = await response.json()
-        setError(data.error || 'Failed to create listing')
+        const errorMsg = data.error || 'Failed to create listing'
+        setError(errorMsg)
+        showToast(errorMsg, 'error')
         return
       }
 
       const data = await response.json()
+      showToast('Item listed successfully!', 'success')
       router.push(`/items/${data.id}`)
     } catch (error) {
-      setError('Something went wrong')
+      const errorMsg = 'Something went wrong'
+      setError(errorMsg)
+      showToast(errorMsg, 'error')
     } finally {
       setLoading(false)
     }
@@ -187,17 +206,20 @@ export default function CreateItemPage() {
                 <div className="text-sm text-gray-500">No commission fees</div>
               </div>
             </label>
-            <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-primary">
+            <label className="flex items-center p-4 border-2 rounded-lg cursor-not-allowed opacity-50 bg-gray-100 dark:bg-gray-800">
               <input
                 type="radio"
                 name="listingType"
                 value="AUCTION"
                 checked={formData.listingType === 'AUCTION'}
-                onChange={(e) => setFormData({ ...formData, listingType: e.target.value })}
+                onChange={(e) => {
+                  showToast('Auction feature coming soon!', 'info')
+                }}
+                disabled
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Auction</div>
+                <div className="font-medium">Auction <span className="text-xs text-gray-500">(Coming Soon)</span></div>
                 <div className="text-sm text-gray-500">Cash on meet only</div>
               </div>
             </label>
@@ -351,7 +373,7 @@ export default function CreateItemPage() {
                 type="file"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={handleImageUpload}
-                disabled={uploading}
+                disabled={uploading || formData.images.length >= 5}
                 className="hidden"
                 id="image-upload"
               />
@@ -375,7 +397,9 @@ export default function CreateItemPage() {
                   />
                 </svg>
                 <span className="text-sm text-gray-600">
-                  {uploading ? 'Uploading...' : 'Click to upload image (JPEG, PNG, WebP - Max 5MB)'}
+                  {uploading ? 'Uploading...' : formData.images.length >= 5 
+                    ? 'Maximum 5 images reached' 
+                    : `Click to upload image (JPEG, PNG, WebP - Max 5MB) - ${formData.images.length}/5`}
                 </span>
               </label>
             </div>
@@ -393,7 +417,8 @@ export default function CreateItemPage() {
             <input
               type="url"
               className="input-field"
-              placeholder="Enter image URL and press Enter"
+              placeholder={formData.images.length >= 5 ? "Maximum 5 images reached" : "Enter image URL and press Enter"}
+              disabled={formData.images.length >= 5}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -403,7 +428,9 @@ export default function CreateItemPage() {
               }}
             />
             <p className="text-xs text-gray-500">
-              Add image URLs (e.g., from Imgur, Google Drive, etc.). Press Enter after each URL.
+              {formData.images.length >= 5 
+                ? 'Maximum 5 images allowed per item' 
+                : `Add image URLs (e.g., from Imgur, Google Drive, etc.). Press Enter after each URL. (${formData.images.length}/5)`}
             </p>
 
             {/* Image Preview */}

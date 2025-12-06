@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/components/AuthProvider'
 import { LanguageProvider } from '@/components/LanguageContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { ToastProvider } from '@/components/ToastProvider'
 import Navbar from '@/components/Navbar'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -57,20 +58,22 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              <Navbar />
-              <main className="min-h-screen">
-                {children}
-              </main>
-            <footer className="bg-gray-800 dark:bg-gray-900 text-white py-8 mt-16">
-              <div className="container mx-auto px-4 text-center">
-                <p>&copy; 2025 TSUSwap. All rights reserved.</p>
-                <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                  Secure marketplace for Tomsk State University students
-                </p>
-              </div>
-            </footer>
-          </AuthProvider>
-        </LanguageProvider>
+              <ToastProvider>
+                <Navbar />
+                <main className="min-h-screen">
+                  {children}
+                </main>
+                <footer className="bg-gray-800 dark:bg-gray-900 text-white py-8 mt-16">
+                  <div className="container mx-auto px-4 text-center">
+                    <p>&copy; 2025 TSUSwap. All rights reserved.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                      Secure marketplace for Tomsk State University students
+                    </p>
+                  </div>
+                </footer>
+              </ToastProvider>
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

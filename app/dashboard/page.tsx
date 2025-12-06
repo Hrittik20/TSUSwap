@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPackage, FiShoppingCart, FiDollarSign, FiUser } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
+import { useToast } from '@/components/ToastProvider'
 // SellerWarning component removed - using inline warning for pending sales
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { showToast } = useToast()
   const [transactions, setTransactions] = useState<any[]>([])
   const [userItems, setUserItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -225,13 +227,14 @@ export default function DashboardPage() {
                                         }
                                       )
                                       if (response.ok) {
+                                        showToast('Transaction confirmed successfully!', 'success')
                                         fetchData()
                                       } else {
                                         const data = await response.json()
-                                        alert(data.error || 'Failed to confirm transaction')
+                                        showToast(data.error || 'Failed to confirm transaction', 'error')
                                       }
                                     } catch (error) {
-                                      alert('Failed to confirm transaction')
+                                      showToast('Failed to confirm transaction', 'error')
                                     }
                                   }
                                 }}
@@ -254,14 +257,14 @@ export default function DashboardPage() {
                                         }
                                       )
                                       if (response.ok) {
+                                        showToast('Transaction cancelled. Item is now available for sale again.', 'success')
                                         fetchData()
-                                        alert('Transaction cancelled. Item is now available for sale again.')
                                       } else {
                                         const data = await response.json()
-                                        alert(data.error || 'Failed to cancel transaction')
+                                        showToast(data.error || 'Failed to cancel transaction', 'error')
                                       }
                                     } catch (error) {
-                                      alert('Failed to cancel transaction')
+                                      showToast('Failed to cancel transaction', 'error')
                                     }
                                   }
                                 }}

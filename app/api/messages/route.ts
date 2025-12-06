@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/authOptions'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { createNotification } from '@/lib/notifications'
 
 const messageSchema = z.object({
   content: z.string().min(1).max(1000),
@@ -43,6 +44,14 @@ export async function POST(request: Request) {
           },
         },
       },
+    })
+
+    // Create notification for receiver
+    await createNotification({
+      userId: receiverId,
+      type: 'MESSAGE',
+      title: 'New Message',
+      message: `You have a new message from ${message.sender.name}`,
     })
 
     return NextResponse.json(message, { status: 201 })
