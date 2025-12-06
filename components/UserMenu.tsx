@@ -61,7 +61,7 @@ export default function UserMenu() {
               className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <FiUser />
-              <span className="dark:text-gray-200">Dashboard</span>
+              <span className="text-gray-900 dark:text-gray-200">Dashboard</span>
             </Link>
             <Link
               href="/profile"
@@ -69,7 +69,7 @@ export default function UserMenu() {
               className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <FiSettings />
-              <span className="dark:text-gray-200">Profile</span>
+              <span className="text-gray-900 dark:text-gray-200">Profile</span>
             </Link>
             <div className="border-t dark:border-gray-700 my-1"></div>
             <button
