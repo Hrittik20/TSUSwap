@@ -301,9 +301,22 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
           <div className="card">
             <h3 className="font-semibold mb-4">{t('item.sellerInfo')}</h3>
             <div className="space-y-3">
-              <div className="flex items-center">
-                <FiUser className="mr-2 text-gray-400" />
-                <span>{item.seller.name}</span>
+              <div className="flex items-center space-x-3">
+                {item.seller.profileImage ? (
+                  <img
+                    src={item.seller.profileImage}
+                    alt={item.seller.name}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                    <FiUser className="text-primary text-xl" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium dark:text-gray-200">{item.seller.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Seller</p>
+                </div>
               </div>
               <div className="flex items-center">
                 <FiMapPin className="mr-2 text-gray-400" />

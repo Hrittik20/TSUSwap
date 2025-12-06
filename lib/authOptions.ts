@@ -41,6 +41,7 @@ export const authOptions: AuthOptions = {
           name: user.name,
           dormitory: user.dormitory,
           roomNumber: user.roomNumber,
+          profileImage: user.profileImage,
         }
       },
     }),
@@ -51,6 +52,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id as string
         token.dormitory = (user as any).dormitory as string
         token.roomNumber = (user as any).roomNumber as string
+        token.profileImage = (user as any).profileImage as string | undefined
       }
       return token
     },
@@ -64,6 +66,7 @@ export const authOptions: AuthOptions = {
         }
         (session.user as any).dormitory = token.dormitory as string | undefined
         (session.user as any).roomNumber = token.roomNumber as string | undefined
+        (session.user as any).profileImage = token.profileImage as string | undefined
       }
       return session
     },

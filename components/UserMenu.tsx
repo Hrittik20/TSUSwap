@@ -29,6 +29,7 @@ export default function UserMenu() {
 
   const userName = session.user.name || 'User'
   const userInitial = userName.charAt(0).toUpperCase()
+  const profileImage = (session.user as any)?.profileImage
 
   return (
     <div className="relative" ref={menuRef}>
@@ -36,9 +37,17 @@ export default function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 hover:text-primary-200 dark:hover:text-primary-300 transition-colors px-3 py-2 rounded"
       >
-        <div className="w-8 h-8 rounded-full bg-white bg-opacity-20 dark:bg-opacity-10 flex items-center justify-center">
-          <span className="text-sm font-semibold">{userInitial}</span>
-        </div>
+        {profileImage ? (
+          <img
+            src={profileImage}
+            alt={userName}
+            className="w-8 h-8 rounded-full object-cover border-2 border-white border-opacity-30"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-white bg-opacity-20 dark:bg-opacity-10 flex items-center justify-center">
+            <span className="text-sm font-semibold">{userInitial}</span>
+          </div>
+        )}
         <span className="hidden lg:inline">{userName}</span>
         <FiChevronDown className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>

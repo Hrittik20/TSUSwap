@@ -177,4 +177,16 @@ model Notification {
   @@map("notifications")
 }
 
+model EmailVerification {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  code          String
+  verified      Boolean   @default(false)
+  attempts      Int       @default(0)
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  
+  @@map("email_verifications")
+}
+
 

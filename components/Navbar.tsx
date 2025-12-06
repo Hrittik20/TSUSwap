@@ -87,14 +87,17 @@ export default function Navbar() {
             <ThemeToggle />
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
+          {/* Mobile: Notification and Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {status === 'authenticated' && <NotificationBell />}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -131,10 +134,6 @@ export default function Navbar() {
                     <FiMessageSquare />
                     <span>{t('nav.messages')}</span>
                   </Link>
-
-                  <div className="px-4 py-3">
-                    <NotificationBell />
-                  </div>
 
                   <Link
                     href="/dashboard"
