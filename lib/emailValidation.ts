@@ -66,8 +66,15 @@ export function isValidEmail(email: string): { valid: boolean; reason?: string }
     return { valid: false, reason: 'Invalid email format' }
   }
 
-  // Check for disposable email domains
+  // Require Gmail/Google Mail for verification
   const domain = email.split('@')[1]?.toLowerCase()
+  const allowedDomains = ['gmail.com', 'googlemail.com']
+  if (domain && !allowedDomains.includes(domain)) {
+    return { valid: false, reason: 'Only Gmail addresses (@gmail.com or @googlemail.com) are allowed for verification' }
+  }
+
+  // Domain already extracted above for Gmail check
+  // Check for disposable email domains (though Gmail requirement should prevent most)
   if (domain && DISPOSABLE_EMAIL_DOMAINS.includes(domain)) {
     return { valid: false, reason: 'Disposable email addresses are not allowed' }
   }

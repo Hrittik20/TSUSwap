@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { FiSend, FiMessageSquare } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function MessagesPage() {
   const { data: session, status } = useSession()
@@ -19,6 +20,7 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [loadingConversations, setLoadingConversations] = useState(true)
+  const [loadingMessages, setLoadingMessages] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -61,11 +63,14 @@ export default function MessagesPage() {
     if (!selectedUserId) return
 
     try {
+      setLoadingMessages(true)
       const response = await fetch(`/api/messages?userId=${selectedUserId}`)
       const data = await response.json()
       setMessages(data)
     } catch (error) {
       console.error('Failed to fetch messages:', error)
+    } finally {
+      setLoadingMessages(false)
     }
   }
 
@@ -226,8 +231,10 @@ export default function MessagesPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-          {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-12">
+          {loadingMessages ? (
+            <LoadingSpinner text="Loading messages..." />
+          ) : messages.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-12">
               No messages yet. Start the conversation!
             </div>
           ) : (

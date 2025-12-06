@@ -39,7 +39,7 @@ export default function LoginPage() {
       if (result?.ok) {
         console.log('Login successful! Redirecting...')
         // Force a full page reload to ensure session is loaded
-        window.location.href = '/dashboard'
+        window.location.href = '/items'
       } else {
         setError('Login failed')
       }

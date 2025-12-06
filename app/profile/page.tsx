@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FiUser, FiMapPin, FiPhone, FiMail, FiEdit2, FiArrowLeft, FiCamera } from 'react-icons/fi'
+import { FiUser, FiMapPin, FiPhone, FiMail, FiEdit2, FiArrowLeft, FiCamera, FiSave, FiX } from 'react-icons/fi'
 import { useLanguage } from '@/components/LanguageContext'
-import { getDormitoryLabel } from '@/lib/dormitories'
+import { getDormitoryLabel, DORMITORIES } from '@/lib/dormitories'
 import { useToast } from '@/components/ToastProvider'
 
 export default function ProfilePage() {
@@ -17,6 +17,14 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editData, setEditData] = useState({
+    name: '',
+    phoneNumber: '',
+    dormitory: '',
+    roomNumber: '',
+  })
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -31,10 +39,56 @@ export default function ProfilePage() {
       const response = await fetch('/api/user/profile')
       const data = await response.json()
       setUser(data)
+      setEditData({
+        name: data.name || '',
+        phoneNumber: data.phoneNumber || '',
+        dormitory: data.dormitory || '',
+        roomNumber: data.roomNumber || '',
+      })
     } catch (error) {
       console.error('Failed to fetch profile:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditData({
+      name: user.name || '',
+      phoneNumber: user.phoneNumber || '',
+      dormitory: user.dormitory || '',
+      roomNumber: user.roomNumber || '',
+    })
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const response = await fetch('/api/user/profile/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        showToast(data.error || 'Failed to update profile', 'error')
+        return
+      }
+
+      const data = await response.json()
+      setUser(data)
+      setIsEditing(false)
+      showToast('Profile updated successfully!', 'success')
+    } catch (error) {
+      showToast('Failed to update profile', 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -161,13 +215,52 @@ export default function ProfilePage() {
         <div className="md:col-span-2 space-y-6">
           {/* Personal Information */}
           <div className="card">
-            <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Personal Information</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold dark:text-gray-100">Personal Information</h3>
+              {!isEditing ? (
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center space-x-2 text-primary hover:text-primary-600 dark:hover:text-primary-400"
+                >
+                  <FiEdit2 />
+                  <span>Edit</span>
+                </button>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex items-center space-x-2 btn-primary text-sm disabled:opacity-50"
+                  >
+                    <FiSave />
+                    <span>{saving ? 'Saving...' : 'Save'}</span>
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={saving}
+                    className="flex items-center space-x-2 btn-secondary text-sm disabled:opacity-50"
+                  >
+                    <FiX />
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="space-y-4">
               <div className="flex items-start">
                 <FiUser className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
-                  <p className="font-medium dark:text-gray-200">{user.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Full Name</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.name}
+                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                      className="input-field"
+                    />
+                  ) : (
+                    <p className="font-medium dark:text-gray-200">{user.name}</p>
+                  )}
                 </div>
               </div>
 
@@ -176,14 +269,25 @@ export default function ProfilePage() {
                 <div className="flex-1">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
                   <p className="font-medium dark:text-gray-200">{user.email}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
               </div>
 
               <div className="flex items-start">
                 <FiPhone className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone Number</p>
-                  <p className="font-medium dark:text-gray-200">{user.phoneNumber || 'Not provided'}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Phone Number</p>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={editData.phoneNumber}
+                      onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
+                      className="input-field"
+                      placeholder="Optional"
+                    />
+                  ) : (
+                    <p className="font-medium dark:text-gray-200">{user.phoneNumber || 'Not provided'}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -196,16 +300,40 @@ export default function ProfilePage() {
               <div className="flex items-start">
                 <FiMapPin className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Dormitory</p>
-                  <p className="font-medium text-lg dark:text-gray-200">{dormitoryLabel}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Dormitory</p>
+                  {isEditing ? (
+                    <select
+                      value={editData.dormitory}
+                      onChange={(e) => setEditData({ ...editData, dormitory: e.target.value })}
+                      className="input-field"
+                    >
+                      <option value="">Select dormitory</option>
+                      {DORMITORIES.map((dorm) => (
+                        <option key={dorm.value} value={dorm.value}>
+                          {language === 'ru' ? dorm.labelRu : dorm.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="font-medium text-lg dark:text-gray-200">{dormitoryLabel}</p>
+                  )}
                 </div>
               </div>
 
               <div className="flex items-start">
                 <FiMapPin className="text-gray-400 dark:text-gray-500 mt-1 mr-3" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Room Number</p>
-                  <p className="font-medium text-lg dark:text-gray-200">Room {user.roomNumber}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Room Number</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.roomNumber}
+                      onChange={(e) => setEditData({ ...editData, roomNumber: e.target.value })}
+                      className="input-field"
+                    />
+                  ) : (
+                    <p className="font-medium text-lg dark:text-gray-200">Room {user.roomNumber}</p>
+                  )}
                 </div>
               </div>
 

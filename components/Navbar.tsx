@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { FiUser, FiLogOut, FiMessageSquare, FiPlusCircle, FiShoppingBag, FiMenu, FiX } from 'react-icons/fi'
+import { FiMessageSquare, FiPlusCircle, FiShoppingBag, FiMenu, FiX } from 'react-icons/fi'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeToggle from './ThemeToggle'
 import NotificationBell from './NotificationBell'
+import UserMenu from './UserMenu'
 import { useLanguage } from './LanguageContext'
 
 export default function Navbar() {
@@ -55,29 +56,7 @@ export default function Navbar() {
 
                 <NotificationBell />
 
-                <Link
-                  href="/dashboard"
-                  className="flex items-center space-x-1 hover:text-primary-200 dark:hover:text-primary-300 transition-colors px-3 py-2 rounded"
-                >
-                  <FiUser />
-                  <span>{t('nav.dashboard')}</span>
-                </Link>
-
-                <Link
-                  href="/profile"
-                  className="flex items-center space-x-1 bg-white bg-opacity-20 hover:bg-opacity-30 dark:bg-opacity-10 dark:hover:bg-opacity-20 transition-colors px-3 py-2 rounded"
-                >
-                  <FiUser />
-                  <span>Profile</span>
-                </Link>
-
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  className="flex items-center space-x-1 hover:text-primary-200 dark:hover:text-primary-300 transition-colors px-3 py-2 rounded"
-                >
-                  <FiLogOut />
-                  <span>{t('nav.logout')}</span>
-                </button>
+                <UserMenu />
               </>
             )}
 
@@ -162,7 +141,6 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center space-x-2 px-4 py-3 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors"
                   >
-                    <FiUser />
                     <span>{t('nav.dashboard')}</span>
                   </Link>
 
@@ -171,7 +149,6 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center space-x-2 px-4 py-3 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors"
                   >
-                    <FiUser />
                     <span>Profile</span>
                   </Link>
 
@@ -180,9 +157,8 @@ export default function Navbar() {
                       setMobileMenuOpen(false)
                       signOut({ callbackUrl: '/' })
                     }}
-                    className="flex items-center space-x-2 px-4 py-3 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors text-left w-full"
+                    className="flex items-center space-x-2 px-4 py-3 hover:bg-white hover:bg-opacity-10 rounded-lg transition-colors text-left w-full text-red-200"
                   >
-                    <FiLogOut />
                     <span>{t('nav.logout')}</span>
                   </button>
                 </>
