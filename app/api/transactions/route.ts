@@ -124,6 +124,33 @@ export async function POST(request: Request) {
       })
     })
 
+    // Send automatic message to seller with item image
+    const itemImageUrl = transaction.item.images[0] || ''
+    const messageContent = itemImageUrl
+      ? `Hi! I just purchased "${transaction.item.title}" for ${transaction.amount.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!\n\n${itemImageUrl}`
+      : `Hi! I just purchased "${transaction.item.title}" for ${transaction.amount.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!`
+
+    try {
+      await prisma.message.create({
+        data: {
+          content: messageContent,
+          senderId: transaction.buyerId,
+          receiverId: transaction.sellerId,
+        },
+      })
+
+      // Create notification for seller about new message
+      await createNotification({
+        userId: transaction.sellerId,
+        type: 'MESSAGE',
+        title: 'New Message',
+        message: `You have a new message from ${transaction.buyer.name}`,
+      })
+    } catch (error) {
+      console.error('Failed to send automatic message:', error)
+      // Don't fail the transaction if message fails
+    }
+
     // Create notifications
     await createNotification({
       userId: transaction.sellerId,

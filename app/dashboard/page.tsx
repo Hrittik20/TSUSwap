@@ -20,9 +20,8 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'selling' | 'buying'>('selling')
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean
-    type: 'complete' | 'cancel' | 'relist' | null
+    type: 'complete' | 'cancel' | null
     transactionId?: string
-    itemId?: string
     itemTitle?: string
   }>({
     isOpen: false,
@@ -208,7 +207,13 @@ export default function DashboardPage() {
                                   {transaction.item.title}
                                 </Link>
                                 <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                  Buyer: {transaction.buyer.name} (Room {transaction.buyer.roomNumber})
+                                  Buyer:{' '}
+                                  <button
+                                    onClick={() => router.push(`/messages?userId=${transaction.buyer.id}&itemId=${transaction.item.id}`)}
+                                    className="text-primary hover:text-primary-600 dark:hover:text-primary-400 font-medium underline"
+                                  >
+                                    {transaction.buyer.name} (Room {transaction.buyer.roomNumber})
+                                  </button>
                                 </p>
                                 <p className="text-sm font-medium text-primary mt-1">
                                   {transaction.amount.toLocaleString('ru-RU')} ₽
@@ -308,21 +313,6 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                         {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                       </div>
-                      {(item.status === 'SOLD' || item.status === 'CANCELLED') && (
-                        <button
-                          onClick={() => {
-                            setConfirmModal({
-                              isOpen: true,
-                              type: 'relist',
-                              itemId: item.id,
-                              itemTitle: item.title,
-                            })
-                          }}
-                          className="btn-secondary text-sm"
-                        >
-                          Relist Item
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -445,43 +435,21 @@ export default function DashboardPage() {
             } catch (error) {
               showToast('Failed to cancel transaction', 'error')
             }
-          } else if (confirmModal.type === 'relist' && confirmModal.itemId) {
-            try {
-              const response = await fetch(`/api/items/${confirmModal.itemId}/relist`, {
-                method: 'POST',
-              })
-              if (response.ok) {
-                showToast('Item relisted successfully!', 'success')
-                fetchData()
-              } else {
-                const data = await response.json()
-                showToast(data.error || 'Failed to relist item', 'error')
-              }
-            } catch (error) {
-              showToast('Failed to relist item', 'error')
-            }
-          }
         }}
         title={
           confirmModal.type === 'complete'
             ? 'Confirm Payment Received'
-            : confirmModal.type === 'cancel'
-            ? 'Cancel Transaction'
-            : 'Relist Item'
+            : 'Cancel Transaction'
         }
         message={
           confirmModal.type === 'complete'
             ? `Have you received the payment in person for "${confirmModal.itemTitle}"? Only confirm after you have received the cash payment from the buyer.`
-            : confirmModal.type === 'cancel'
-            ? `Cancel this transaction for "${confirmModal.itemTitle}"? The item will be made available for sale again. Only cancel if the buyer did not show up or did not pay.`
-            : `Relist "${confirmModal.itemTitle}"? It will become available for purchase again.`
+            : `Cancel this transaction for "${confirmModal.itemTitle}"? The item will be made available for sale again. Only cancel if the buyer did not show up or did not pay.`
         }
         confirmText={
           confirmModal.type === 'complete'
             ? 'Yes, I Received Payment'
-            : confirmModal.type === 'cancel'
-            ? 'Yes, Cancel Transaction'
-            : 'Yes, Relist'
+            : 'Yes, Cancel Transaction'
         }
         cancelText="Cancel"
         confirmButtonClass={

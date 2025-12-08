@@ -344,51 +344,6 @@ export default function MessagesPage() {
                 )}
               </div>
             </div>
-            {transactionHistory.length > 0 && (
-              <div className="mt-3">
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  Purchase History ({transactionHistory.length})
-                </p>
-                <div className="max-h-32 overflow-y-auto space-y-2">
-                  {transactionHistory.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20 flex items-center space-x-2"
-                    >
-                      {transaction.item.images[0] && (
-                        <img
-                          src={transaction.item.images[0]}
-                          alt={transaction.item.title}
-                          className="w-12 h-12 object-cover rounded flex-shrink-0"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {transaction.item.title}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          {transaction.amount.toLocaleString('ru-RU')} ₽
-                          <span className="ml-2 text-xs">
-                            • {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
-                          </span>
-                        </p>
-                        <span
-                          className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${
-                            transaction.status === 'COMPLETED'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
-                              : transaction.status === 'PENDING'
-                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300'
-                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                          }`}
-                        >
-                          {transaction.status.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -415,7 +370,31 @@ export default function MessagesPage() {
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                    {/* Check if message contains image URL */}
+                    {(() => {
+                      const imageUrlMatch = message.content.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg))/i)
+                      const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null
+                      const textContent = imageUrl ? message.content.replace(imageUrl, '').trim() : message.content
+                      
+                      return (
+                        <>
+                          {imageUrl && (
+                            <img
+                              src={imageUrl}
+                              alt="Item image"
+                              className="w-48 h-48 object-cover rounded-lg mb-2"
+                              onError={(e) => {
+                                // Hide image if it fails to load
+                                e.currentTarget.style.display = 'none'
+                              }}
+                            />
+                          )}
+                          {textContent && (
+                            <p className="whitespace-pre-wrap break-words">{textContent}</p>
+                          )}
+                        </>
+                      )
+                    })()}
                     <p
                       className={`text-xs mt-1 ${
                         isOwnMessage ? 'text-primary-100' : 'text-gray-500'
