@@ -332,8 +332,35 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right text-sm text-gray-500 dark:text-gray-400">
-                      {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                    <div className="text-right">
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                      </div>
+                      {(item.status === 'SOLD' || item.status === 'CANCELLED') && (
+                        <button
+                          onClick={async () => {
+                            if (confirm('Relist this item? It will become available for purchase again.')) {
+                              try {
+                                const response = await fetch(`/api/items/${item.id}/relist`, {
+                                  method: 'POST',
+                                })
+                                if (response.ok) {
+                                  showToast('Item relisted successfully!', 'success')
+                                  fetchData()
+                                } else {
+                                  const data = await response.json()
+                                  showToast(data.error || 'Failed to relist item', 'error')
+                                }
+                              } catch (error) {
+                                showToast('Failed to relist item', 'error')
+                              }
+                            }
+                          }}
+                          className="btn-secondary text-sm"
+                        >
+                          Relist Item
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

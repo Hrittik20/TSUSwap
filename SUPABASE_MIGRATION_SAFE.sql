@@ -55,3 +55,4 @@ CREATE TABLE IF NOT EXISTS "email_verifications" (
 -- Create unique index on email if it doesn't exist
 CREATE UNIQUE INDEX IF NOT EXISTS "email_verifications_email_key" ON "email_verifications"("email");
 
+

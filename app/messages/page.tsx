@@ -13,6 +13,7 @@ export default function MessagesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedUserId = searchParams.get('userId')
+  const itemId = searchParams.get('itemId')
   const { showToast } = useToast()
   
   const [conversations, setConversations] = useState<any[]>([])
@@ -21,28 +22,90 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(false)
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [itemContext, setItemContext] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated') {
+      setIsInitialLoad(true)
       fetchConversations()
       if (selectedUserId) {
         fetchMessages()
+        if (itemId) {
+          fetchItemContext()
+        }
       }
     }
-  }, [status, selectedUserId])
+  }, [status, selectedUserId, itemId])
+
+  // Send initial message after item context and messages are loaded
+  useEffect(() => {
+    if (itemContext && selectedUserId && itemId && messages.length === 0 && !loadingMessages) {
+      sendInitialMessage()
+    }
+  }, [itemContext, selectedUserId, itemId, messages.length, loadingMessages])
+
+  const fetchItemContext = async () => {
+    if (!itemId) return
+    try {
+      const response = await fetch(`/api/items/${itemId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setItemContext(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch item context:', error)
+    }
+  }
+
+  const sendInitialMessage = async () => {
+    if (!selectedUserId || !itemId || !itemContext) return
+    
+    // Check if there are already messages - if so, don't send initial message
+    if (messages.length > 0) return
+
+    try {
+      const messageContent = `Hi! I just purchased "${itemContext.title}" for ${itemContext.price?.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!`
+      
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: messageContent,
+          receiverId: selectedUserId,
+        }),
+      })
+
+      if (response.ok) {
+        await fetchMessages()
+        await fetchConversations()
+      }
+    } catch (error) {
+      console.error('Failed to send initial message:', error)
+    }
+  }
 
   // Separate polling effect that only runs when authenticated and has selectedUserId
   useEffect(() => {
     if (status === 'authenticated' && selectedUserId) {
+      // Mark initial load as complete after first fetch
+      const initialTimeout = setTimeout(() => {
+        setIsInitialLoad(false)
+      }, 2000)
+      
       // Poll for new messages every 10 seconds (less aggressive)
       const interval = setInterval(() => {
-        fetchMessages()
+        fetchMessages(false) // Pass false to indicate this is a polling update
         fetchConversations()
       }, 10000)
-      return () => clearInterval(interval)
+      
+      return () => {
+        clearInterval(interval)
+        clearTimeout(initialTimeout)
+      }
     }
   }, [status, selectedUserId])
 
@@ -68,11 +131,13 @@ export default function MessagesPage() {
     scrollToBottom()
   }, [messages])
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (showLoading = true) => {
     if (!selectedUserId) return
 
     try {
-      setLoadingMessages(true)
+      if (showLoading) {
+        setLoadingMessages(true)
+      }
       const response = await fetch(`/api/messages?userId=${selectedUserId}`)
       if (response.ok) {
         const data = await response.json()
@@ -85,7 +150,9 @@ export default function MessagesPage() {
       console.error('Failed to fetch messages:', error)
       setMessages([])
     } finally {
-      setLoadingMessages(false)
+      if (showLoading) {
+        setLoadingMessages(false)
+      }
     }
   }
 
@@ -221,33 +288,52 @@ export default function MessagesPage() {
       <div className="card h-[600px] flex flex-col">
         {/* Header */}
         {otherUser && (
-          <div className="border-b dark:border-gray-700 px-6 py-4 flex items-center space-x-3">
-            {otherUser.profileImage ? (
-              <img
-                src={otherUser.profileImage}
-                alt={otherUser.name}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="text-primary font-semibold">
-                  {otherUser.name.charAt(0).toUpperCase()}
-                </span>
+          <div className="border-b dark:border-gray-700 px-6 py-4">
+            <div className="flex items-center space-x-3 mb-3">
+              {otherUser.profileImage ? (
+                <img
+                  src={otherUser.profileImage}
+                  alt={otherUser.name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-primary font-semibold">
+                    {otherUser.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <h2 className="text-xl font-semibold dark:text-gray-100">{otherUser.name}</h2>
+                {otherUser.roomNumber && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Room {otherUser.roomNumber}</p>
+                )}
+              </div>
+            </div>
+            {itemContext && (
+              <div className="mt-3 p-3 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  About: {itemContext.title}
+                </p>
+                {itemContext.images[0] && (
+                  <img
+                    src={itemContext.images[0]}
+                    alt={itemContext.title}
+                    className="w-16 h-16 object-cover rounded mt-2"
+                  />
+                )}
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  Price: {itemContext.price?.toLocaleString('ru-RU')} ₽
+                </p>
               </div>
             )}
-            <div>
-              <h2 className="text-xl font-semibold dark:text-gray-100">{otherUser.name}</h2>
-              {otherUser.roomNumber && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Room {otherUser.roomNumber}</p>
-              )}
-            </div>
           </div>
         )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-          {loadingMessages ? (
-            <LoadingSpinner text="Loading messages..." />
+          {loadingMessages && isInitialLoad ? (
+            <LoadingSpinner message="Loading messages..." />
           ) : messages.length === 0 ? (
             <div className="text-center text-gray-500 dark:text-gray-400 py-12">
               No messages yet. Start the conversation!

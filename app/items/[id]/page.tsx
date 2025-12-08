@@ -10,6 +10,7 @@ import ShareButton from '@/components/ShareButton'
 import { useLanguage } from '@/components/LanguageContext'
 import { isLongListed } from '@/lib/utils'
 import { useToast } from '@/components/ToastProvider'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession()
@@ -21,6 +22,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const [bidAmount, setBidAmount] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'CASH_ON_MEET'>('CASH_ON_MEET')
   const [processing, setProcessing] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   useEffect(() => {
     fetchItem()
@@ -80,10 +82,10 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
       return
     }
 
-    if (!confirm('Are you sure you want to purchase this item?')) {
-      return
-    }
+    setShowConfirmModal(true)
+  }
 
+  const confirmPurchase = async () => {
     setProcessing(true)
     try {
       const response = await fetch('/api/transactions', {
@@ -98,16 +100,17 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
       if (!response.ok) {
         const data = await response.json()
         showToast(data.error || 'Failed to create transaction', 'error')
+        setProcessing(false)
         return
       }
 
       const data = await response.json()
-      showToast('Purchase successful! The seller will contact you to arrange meetup.', 'success')
+      showToast('Purchase successful! Redirecting to chat...', 'success')
       
-      router.push('/dashboard')
+      // Redirect to messages with seller and item context
+      router.push(`/messages?userId=${item.seller.id}&itemId=${item.id}`)
     } catch (error) {
       showToast('Failed to complete purchase', 'error')
-    } finally {
       setProcessing(false)
     }
   }
@@ -368,6 +371,16 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmPurchase}
+        title="Confirm Purchase"
+        message={`Are you sure you want to purchase "${item?.title}" for ${item?.price?.toLocaleString('ru-RU')} ₽? You will be redirected to chat with the seller to arrange the meetup.`}
+        confirmText="Yes, Purchase"
+        cancelText="Cancel"
+      />
     </div>
   )
 }
