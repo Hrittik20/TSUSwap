@@ -24,6 +24,7 @@ export default function MessagesPage() {
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [itemContext, setItemContext] = useState<any>(null)
+  const [transactionHistory, setTransactionHistory] = useState<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -50,14 +51,23 @@ export default function MessagesPage() {
       const response = await fetch('/api/transactions')
       if (response.ok) {
         const transactions = await response.json()
-        // Find a transaction between current user and selected user
-        const transaction = transactions.find(
+        // Find all transactions between current user and selected user
+        const relatedTransactions = transactions.filter(
           (t: any) =>
             (t.buyerId === (session.user as any).id && t.sellerId === selectedUserId) ||
             (t.sellerId === (session.user as any).id && t.buyerId === selectedUserId)
         )
-        if (transaction && transaction.item) {
-          setItemContext(transaction.item)
+        
+        // Sort by creation date (newest first)
+        relatedTransactions.sort((a: any, b: any) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        
+        setTransactionHistory(relatedTransactions)
+        
+        // Set the most recent item as context if itemId is not provided
+        if (!itemId && relatedTransactions.length > 0 && relatedTransactions[0].item) {
+          setItemContext(relatedTransactions[0].item)
         }
       }
     } catch (error) {
@@ -334,21 +344,49 @@ export default function MessagesPage() {
                 )}
               </div>
             </div>
-            {itemContext && (
-              <div className="mt-3 p-3 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                  About: {itemContext.title}
+            {transactionHistory.length > 0 && (
+              <div className="mt-3">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Purchase History ({transactionHistory.length})
                 </p>
-                {itemContext.images[0] && (
-                  <img
-                    src={itemContext.images[0]}
-                    alt={itemContext.title}
-                    className="w-16 h-16 object-cover rounded mt-2"
-                  />
-                )}
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Price: {itemContext.price?.toLocaleString('ru-RU')} ₽
-                </p>
+                <div className="max-h-32 overflow-y-auto space-y-2">
+                  {transactionHistory.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20 flex items-center space-x-2"
+                    >
+                      {transaction.item.images[0] && (
+                        <img
+                          src={transaction.item.images[0]}
+                          alt={transaction.item.title}
+                          className="w-12 h-12 object-cover rounded flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {transaction.item.title}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {transaction.amount.toLocaleString('ru-RU')} ₽
+                          <span className="ml-2 text-xs">
+                            • {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
+                          </span>
+                        </p>
+                        <span
+                          className={`inline-block mt-1 px-2 py-0.5 rounded text-xs ${
+                            transaction.status === 'COMPLETED'
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                              : transaction.status === 'PENDING'
+                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {transaction.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

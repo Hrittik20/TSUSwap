@@ -65,11 +65,38 @@ export default function NotificationBell() {
     }
   }
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
     markAsRead([notification.id])
     setIsOpen(false)
     
-    if (notification.relatedItemId) {
+    if (notification.type === 'TRANSACTION_CREATED' && notification.relatedTransactionId) {
+      // For transaction created notifications, redirect to chat with the buyer/seller
+      try {
+        const response = await fetch('/api/transactions')
+        if (response.ok) {
+          const transactions = await response.json()
+          const transaction = transactions.find(
+            (t: any) => t.id === notification.relatedTransactionId
+          )
+          if (transaction) {
+            // If current user is seller, go to chat with buyer
+            // If current user is buyer, go to chat with seller
+            const otherUserId = 
+              transaction.sellerId === (session?.user as any)?.id
+                ? transaction.buyerId
+                : transaction.sellerId
+            if (otherUserId) {
+              router.push(`/messages?userId=${otherUserId}&itemId=${transaction.itemId}`)
+              return
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch transaction:', error)
+      }
+      // Fallback to dashboard if transaction fetch fails
+      router.push('/dashboard')
+    } else if (notification.relatedItemId) {
       router.push(`/items/${notification.relatedItemId}`)
     } else if (notification.relatedTransactionId) {
       router.push('/dashboard')
