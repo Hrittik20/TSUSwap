@@ -36,10 +36,34 @@ export default function MessagesPage() {
         fetchMessages()
         if (itemId) {
           fetchItemContext()
+        } else {
+          // Try to find item from transactions
+          fetchItemFromTransaction()
         }
       }
     }
   }, [status, selectedUserId, itemId])
+
+  const fetchItemFromTransaction = async () => {
+    if (!selectedUserId || !session?.user) return
+    try {
+      const response = await fetch('/api/transactions')
+      if (response.ok) {
+        const transactions = await response.json()
+        // Find a transaction between current user and selected user
+        const transaction = transactions.find(
+          (t: any) =>
+            (t.buyerId === (session.user as any).id && t.sellerId === selectedUserId) ||
+            (t.sellerId === (session.user as any).id && t.buyerId === selectedUserId)
+        )
+        if (transaction && transaction.item) {
+          setItemContext(transaction.item)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch item from transaction:', error)
+    }
+  }
 
   // Send initial message after item context and messages are loaded
   useEffect(() => {

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { FiPackage, FiShoppingCart, FiDollarSign, FiUser } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
 import { useToast } from '@/components/ToastProvider'
+import ConfirmModal from '@/components/ConfirmModal'
 // SellerWarning component removed - using inline warning for pending sales
 
 export default function DashboardPage() {
@@ -17,6 +18,16 @@ export default function DashboardPage() {
   const [userItems, setUserItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'selling' | 'buying'>('selling')
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean
+    type: 'complete' | 'cancel' | 'relist' | null
+    transactionId?: string
+    itemId?: string
+    itemTitle?: string
+  }>({
+    isOpen: false,
+    type: null,
+  })
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -30,19 +41,14 @@ export default function DashboardPage() {
     try {
       const [transactionsRes, itemsRes] = await Promise.all([
         fetch('/api/transactions'),
-        fetch('/api/items'),
+        fetch('/api/user/items'), // Fetch all user items including SOLD
       ])
 
       const transactionsData = await transactionsRes.json()
       const itemsData = await itemsRes.json()
 
       setTransactions(transactionsData)
-      
-      // Filter user's items
-      const myItems = itemsData.filter(
-        (item: any) => item.seller.id === (session?.user as any)?.id
-      )
-      setUserItems(myItems)
+      setUserItems(itemsData)
     } catch (error) {
       console.error('Failed to fetch data:', error)
     } finally {
@@ -213,60 +219,26 @@ export default function DashboardPage() {
                           <div className="text-right">
                             <div className="flex flex-col gap-2">
                               <button
-                                onClick={async () => {
-                                  if (
-                                    confirm(
-                                      'Have you received the payment in person? Only confirm after you have received the cash payment from the buyer.'
-                                    )
-                                  ) {
-                                    try {
-                                      const response = await fetch(
-                                        `/api/transactions/${transaction.id}/complete`,
-                                        {
-                                          method: 'POST',
-                                        }
-                                      )
-                                      if (response.ok) {
-                                        showToast('Transaction confirmed successfully!', 'success')
-                                        fetchData()
-                                      } else {
-                                        const data = await response.json()
-                                        showToast(data.error || 'Failed to confirm transaction', 'error')
-                                      }
-                                    } catch (error) {
-                                      showToast('Failed to confirm transaction', 'error')
-                                    }
-                                  }
+                                onClick={() => {
+                                  setConfirmModal({
+                                    isOpen: true,
+                                    type: 'complete',
+                                    transactionId: transaction.id,
+                                    itemTitle: transaction.item.title,
+                                  })
                                 }}
                                 className="btn-primary text-sm"
                               >
                                 Confirm Payment Received
                               </button>
                               <button
-                                onClick={async () => {
-                                  if (
-                                    confirm(
-                                      'Cancel this transaction? The item will be made available for sale again. Only cancel if the buyer did not show up or did not pay.'
-                                    )
-                                  ) {
-                                    try {
-                                      const response = await fetch(
-                                        `/api/transactions/${transaction.id}/cancel`,
-                                        {
-                                          method: 'POST',
-                                        }
-                                      )
-                                      if (response.ok) {
-                                        showToast('Transaction cancelled. Item is now available for sale again.', 'success')
-                                        fetchData()
-                                      } else {
-                                        const data = await response.json()
-                                        showToast(data.error || 'Failed to cancel transaction', 'error')
-                                      }
-                                    } catch (error) {
-                                      showToast('Failed to cancel transaction', 'error')
-                                    }
-                                  }
+                                onClick={() => {
+                                  setConfirmModal({
+                                    isOpen: true,
+                                    type: 'cancel',
+                                    transactionId: transaction.id,
+                                    itemTitle: transaction.item.title,
+                                  })
                                 }}
                                 className="btn-secondary text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800"
                               >
@@ -338,23 +310,13 @@ export default function DashboardPage() {
                       </div>
                       {(item.status === 'SOLD' || item.status === 'CANCELLED') && (
                         <button
-                          onClick={async () => {
-                            if (confirm('Relist this item? It will become available for purchase again.')) {
-                              try {
-                                const response = await fetch(`/api/items/${item.id}/relist`, {
-                                  method: 'POST',
-                                })
-                                if (response.ok) {
-                                  showToast('Item relisted successfully!', 'success')
-                                  fetchData()
-                                } else {
-                                  const data = await response.json()
-                                  showToast(data.error || 'Failed to relist item', 'error')
-                                }
-                              } catch (error) {
-                                showToast('Failed to relist item', 'error')
-                              }
-                            }
+                          onClick={() => {
+                            setConfirmModal({
+                              isOpen: true,
+                              type: 'relist',
+                              itemId: item.id,
+                              itemTitle: item.title,
+                            })
                           }}
                           className="btn-secondary text-sm"
                         >
@@ -446,6 +408,88 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, type: null })}
+        onConfirm={async () => {
+          if (confirmModal.type === 'complete' && confirmModal.transactionId) {
+            try {
+              const response = await fetch(
+                `/api/transactions/${confirmModal.transactionId}/complete`,
+                { method: 'POST' }
+              )
+              if (response.ok) {
+                showToast('Transaction confirmed successfully!', 'success')
+                fetchData()
+              } else {
+                const data = await response.json()
+                showToast(data.error || 'Failed to confirm transaction', 'error')
+              }
+            } catch (error) {
+              showToast('Failed to confirm transaction', 'error')
+            }
+          } else if (confirmModal.type === 'cancel' && confirmModal.transactionId) {
+            try {
+              const response = await fetch(
+                `/api/transactions/${confirmModal.transactionId}/cancel`,
+                { method: 'POST' }
+              )
+              if (response.ok) {
+                showToast('Transaction cancelled. Item is now available for sale again.', 'success')
+                fetchData()
+              } else {
+                const data = await response.json()
+                showToast(data.error || 'Failed to cancel transaction', 'error')
+              }
+            } catch (error) {
+              showToast('Failed to cancel transaction', 'error')
+            }
+          } else if (confirmModal.type === 'relist' && confirmModal.itemId) {
+            try {
+              const response = await fetch(`/api/items/${confirmModal.itemId}/relist`, {
+                method: 'POST',
+              })
+              if (response.ok) {
+                showToast('Item relisted successfully!', 'success')
+                fetchData()
+              } else {
+                const data = await response.json()
+                showToast(data.error || 'Failed to relist item', 'error')
+              }
+            } catch (error) {
+              showToast('Failed to relist item', 'error')
+            }
+          }
+        }}
+        title={
+          confirmModal.type === 'complete'
+            ? 'Confirm Payment Received'
+            : confirmModal.type === 'cancel'
+            ? 'Cancel Transaction'
+            : 'Relist Item'
+        }
+        message={
+          confirmModal.type === 'complete'
+            ? `Have you received the payment in person for "${confirmModal.itemTitle}"? Only confirm after you have received the cash payment from the buyer.`
+            : confirmModal.type === 'cancel'
+            ? `Cancel this transaction for "${confirmModal.itemTitle}"? The item will be made available for sale again. Only cancel if the buyer did not show up or did not pay.`
+            : `Relist "${confirmModal.itemTitle}"? It will become available for purchase again.`
+        }
+        confirmText={
+          confirmModal.type === 'complete'
+            ? 'Yes, I Received Payment'
+            : confirmModal.type === 'cancel'
+            ? 'Yes, Cancel Transaction'
+            : 'Yes, Relist'
+        }
+        cancelText="Cancel"
+        confirmButtonClass={
+          confirmModal.type === 'cancel'
+            ? 'btn-secondary bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 border-red-200 dark:border-red-800'
+            : 'btn-primary'
+        }
+      />
     </div>
   )
 }
