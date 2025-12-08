@@ -126,6 +126,7 @@ export async function POST(request: Request) {
 
     // Send automatic message to seller with item image
     const itemImageUrl = transaction.item.images[0] || ''
+    // Put image URL on a separate line so it can be detected and rendered
     const messageContent = itemImageUrl
       ? `Hi! I just purchased "${transaction.item.title}" for ${transaction.amount.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!\n\n${itemImageUrl}`
       : `Hi! I just purchased "${transaction.item.title}" for ${transaction.amount.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!`

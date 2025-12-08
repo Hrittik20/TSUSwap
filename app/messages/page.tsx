@@ -23,7 +23,6 @@ export default function MessagesPage() {
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [itemContext, setItemContext] = useState<any>(null)
   const [transactionHistory, setTransactionHistory] = useState<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -35,12 +34,8 @@ export default function MessagesPage() {
       fetchConversations()
       if (selectedUserId) {
         fetchMessages()
-        if (itemId) {
-          fetchItemContext()
-        } else {
-          // Try to find item from transactions
-          fetchItemFromTransaction()
-        }
+        // Fetch transaction history for context
+        fetchItemFromTransaction()
       }
     }
   }, [status, selectedUserId, itemId])
@@ -64,63 +59,12 @@ export default function MessagesPage() {
         )
         
         setTransactionHistory(relatedTransactions)
-        
-        // Set the most recent item as context if itemId is not provided
-        if (!itemId && relatedTransactions.length > 0 && relatedTransactions[0].item) {
-          setItemContext(relatedTransactions[0].item)
-        }
       }
     } catch (error) {
       console.error('Failed to fetch item from transaction:', error)
     }
   }
 
-  // Send initial message after item context and messages are loaded
-  useEffect(() => {
-    if (itemContext && selectedUserId && itemId && messages.length === 0 && !loadingMessages) {
-      sendInitialMessage()
-    }
-  }, [itemContext, selectedUserId, itemId, messages.length, loadingMessages])
-
-  const fetchItemContext = async () => {
-    if (!itemId) return
-    try {
-      const response = await fetch(`/api/items/${itemId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setItemContext(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch item context:', error)
-    }
-  }
-
-  const sendInitialMessage = async () => {
-    if (!selectedUserId || !itemId || !itemContext) return
-    
-    // Check if there are already messages - if so, don't send initial message
-    if (messages.length > 0) return
-
-    try {
-      const messageContent = `Hi! I just purchased "${itemContext.title}" for ${itemContext.price?.toLocaleString('ru-RU')} ₽. Let's arrange a meetup!`
-      
-      const response = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: messageContent,
-          receiverId: selectedUserId,
-        }),
-      })
-
-      if (response.ok) {
-        await fetchMessages()
-        await fetchConversations()
-      }
-    } catch (error) {
-      console.error('Failed to send initial message:', error)
-    }
-  }
 
   // Separate polling effect that only runs when authenticated and has selectedUserId
   useEffect(() => {
@@ -372,9 +316,20 @@ export default function MessagesPage() {
                   >
                     {/* Check if message contains image URL */}
                     {(() => {
-                      const imageUrlMatch = message.content.match(/(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg))/i)
+                      // Match image URLs more broadly (including Supabase storage URLs with query params)
+                      // Pattern: http:// or https:// followed by domain, path, and image extension
+                      const imageUrlPattern = /(https?:\/\/[^\s\n]+\.(jpg|jpeg|png|gif|webp|svg)(\?[^\s\n]*)?)/gi
+                      const imageUrlMatch = message.content.match(imageUrlPattern)
                       const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null
-                      const textContent = imageUrl ? message.content.replace(imageUrl, '').trim() : message.content
+                      
+                      // Remove the image URL from text, including any newlines and whitespace around it
+                      let textContent = message.content
+                      if (imageUrl) {
+                        // Escape special regex characters in the URL
+                        const escapedUrl = imageUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                        // Remove URL with any whitespace/newlines before and after
+                        textContent = textContent.replace(new RegExp(`\\s*${escapedUrl}\\s*`, 'g'), '').trim()
+                      }
                       
                       return (
                         <>
