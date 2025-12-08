@@ -31,11 +31,11 @@ export default function MessagesPage() {
     } else if (status === 'authenticated') {
       setIsInitialLoad(true)
       fetchConversations()
-        if (selectedUserId) {
-          fetchMessages()
-        }
+      if (selectedUserId) {
+        fetchMessages()
+      }
     }
-  }, [status, selectedUserId, itemId])
+  }, [status, selectedUserId])
 
 
 
