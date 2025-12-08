@@ -435,6 +435,7 @@ export default function DashboardPage() {
             } catch (error) {
               showToast('Failed to cancel transaction', 'error')
             }
+          }
         }}
         title={
           confirmModal.type === 'complete'
