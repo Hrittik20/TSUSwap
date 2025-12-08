@@ -301,7 +301,7 @@ export default function MessagesPage() {
                         // Split by newlines and filter out lines that are just the URL
                         const lines = textContent.split('\n')
                         textContent = lines
-                          .filter(line => {
+                          .filter((line: string) => {
                             const trimmedLine = line.trim()
                             // Remove lines that are exactly the image URL or contain only the URL
                             return trimmedLine !== imageUrl && !trimmedLine.includes(imageUrl)
