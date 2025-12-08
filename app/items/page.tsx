@@ -43,6 +43,7 @@ export default function ItemsPage() {
 
   const fetchItems = async () => {
     try {
+      setLoading(true)
       const params = new URLSearchParams()
       if (filter.search) params.append('search', filter.search)
       if (filter.category) params.append('category', filter.category)
@@ -50,9 +51,11 @@ export default function ItemsPage() {
 
       const response = await fetch(`/api/items?${params}`)
       const data = await response.json()
-      setItems(data)
+      // Ensure data is always an array
+      setItems(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to fetch items:', error)
+      setItems([])
     } finally {
       setLoading(false)
     }

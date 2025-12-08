@@ -30,19 +30,24 @@ export default function MessagesPage() {
       fetchConversations()
       if (selectedUserId) {
         fetchMessages()
-        // Poll for new messages every 5 seconds
-        const interval = setInterval(() => {
-          fetchMessages()
-          fetchConversations()
-        }, 5000)
-        return () => clearInterval(interval)
       }
+    }
+  }, [status, selectedUserId])
+
+  // Separate polling effect that only runs when authenticated and has selectedUserId
+  useEffect(() => {
+    if (status === 'authenticated' && selectedUserId) {
+      // Poll for new messages every 10 seconds (less aggressive)
+      const interval = setInterval(() => {
+        fetchMessages()
+        fetchConversations()
+      }, 10000)
+      return () => clearInterval(interval)
     }
   }, [status, selectedUserId])
 
   const fetchConversations = async () => {
     try {
-      setLoadingConversations(true)
       const response = await fetch('/api/messages/conversations')
       if (response.ok) {
         const data = await response.json()

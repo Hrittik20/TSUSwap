@@ -146,13 +146,11 @@ export async function GET(request: Request) {
       },
     })
 
-    return NextResponse.json(items)
+    return NextResponse.json(items || [])
   } catch (error) {
     console.error('Fetch items error:', error)
-    return NextResponse.json(
-      { error: 'Something went wrong' },
-      { status: 500 }
-    )
+    // Always return an array to prevent frontend .map() errors
+    return NextResponse.json([])
   }
 }
 
