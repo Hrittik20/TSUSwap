@@ -23,7 +23,6 @@ export default function MessagesPage() {
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [transactionHistory, setTransactionHistory] = useState<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -32,38 +31,12 @@ export default function MessagesPage() {
     } else if (status === 'authenticated') {
       setIsInitialLoad(true)
       fetchConversations()
-      if (selectedUserId) {
-        fetchMessages()
-        // Fetch transaction history for context
-        fetchItemFromTransaction()
-      }
+        if (selectedUserId) {
+          fetchMessages()
+        }
     }
   }, [status, selectedUserId, itemId])
 
-  const fetchItemFromTransaction = async () => {
-    if (!selectedUserId || !session?.user) return
-    try {
-      const response = await fetch('/api/transactions')
-      if (response.ok) {
-        const transactions = await response.json()
-        // Find all transactions between current user and selected user
-        const relatedTransactions = transactions.filter(
-          (t: any) =>
-            (t.buyerId === (session.user as any).id && t.sellerId === selectedUserId) ||
-            (t.sellerId === (session.user as any).id && t.buyerId === selectedUserId)
-        )
-        
-        // Sort by creation date (newest first)
-        relatedTransactions.sort((a: any, b: any) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        
-        setTransactionHistory(relatedTransactions)
-      }
-    } catch (error) {
-      console.error('Failed to fetch item from transaction:', error)
-    }
-  }
 
 
   // Separate polling effect that only runs when authenticated and has selectedUserId
@@ -316,33 +289,41 @@ export default function MessagesPage() {
                   >
                     {/* Check if message contains image URL */}
                     {(() => {
-                      // Match image URLs more broadly (including Supabase storage URLs with query params)
-                      // Pattern: http:// or https:// followed by domain, path, and image extension
-                      const imageUrlPattern = /(https?:\/\/[^\s\n]+\.(jpg|jpeg|png|gif|webp|svg)(\?[^\s\n]*)?)/gi
-                      const imageUrlMatch = message.content.match(imageUrlPattern)
-                      const imageUrl = imageUrlMatch ? imageUrlMatch[0] : null
+                      // More robust pattern: match any URL ending with image extensions
+                      // This handles Supabase URLs and other image hosting services
+                      const imageUrlPattern = /(https?:\/\/[^\s\n\r]+\.(jpg|jpeg|png|gif|webp|svg|JPG|JPEG|PNG|GIF|WEBP|SVG)(\?[^\s\n\r]*)?)/gi
+                      const matches = message.content.match(imageUrlPattern)
+                      const imageUrl = matches ? matches[0] : null
                       
-                      // Remove the image URL from text, including any newlines and whitespace around it
+                      // Remove the image URL from text
                       let textContent = message.content
                       if (imageUrl) {
-                        // Escape special regex characters in the URL
-                        const escapedUrl = imageUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-                        // Remove URL with any whitespace/newlines before and after
-                        textContent = textContent.replace(new RegExp(`\\s*${escapedUrl}\\s*`, 'g'), '').trim()
+                        // Split by newlines and filter out lines that are just the URL
+                        const lines = textContent.split('\n')
+                        textContent = lines
+                          .filter(line => {
+                            const trimmedLine = line.trim()
+                            // Remove lines that are exactly the image URL or contain only the URL
+                            return trimmedLine !== imageUrl && !trimmedLine.includes(imageUrl)
+                          })
+                          .join('\n')
+                          .trim()
                       }
                       
                       return (
                         <>
                           {imageUrl && (
-                            <img
-                              src={imageUrl}
-                              alt="Item image"
-                              className="w-48 h-48 object-cover rounded-lg mb-2"
-                              onError={(e) => {
-                                // Hide image if it fails to load
-                                e.currentTarget.style.display = 'none'
-                              }}
-                            />
+                            <div className="mb-2">
+                              <img
+                                src={imageUrl}
+                                alt="Item image"
+                                className="w-48 h-48 object-cover rounded-lg"
+                                onError={(e) => {
+                                  // Hide image if it fails to load
+                                  e.currentTarget.style.display = 'none'
+                                }}
+                              />
+                            </div>
                           )}
                           {textContent && (
                             <p className="whitespace-pre-wrap break-words">{textContent}</p>
