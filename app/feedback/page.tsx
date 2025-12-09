@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { FiSend, FiAlertCircle, FiLightbulb, FiTrendingUp, FiHelpCircle } from 'react-icons/fi'
+import { FiSend, FiAlertCircle, FiZap, FiTrendingUp, FiHelpCircle } from 'react-icons/fi'
 import { useToast } from '@/components/ToastProvider'
 
 export default function FeedbackPage() {
@@ -54,7 +54,7 @@ export default function FeedbackPage() {
 
   const feedbackTypes = [
     { value: 'BUG', label: 'Bug Report', icon: FiAlertCircle, description: 'Report a problem or error' },
-    { value: 'FEATURE', label: 'Feature Request', icon: FiLightbulb, description: 'Suggest a new feature' },
+    { value: 'FEATURE', label: 'Feature Request', icon: FiZap, description: 'Suggest a new feature' },
     { value: 'IMPROVEMENT', label: 'Improvement', icon: FiTrendingUp, description: 'Suggest an improvement' },
     { value: 'OTHER', label: 'Other', icon: FiHelpCircle, description: 'General feedback or suggestions' },
   ]
