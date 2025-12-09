@@ -5,13 +5,17 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import { FiAlertCircle, FiZap, FiTrendingUp, FiHelpCircle } from 'react-icons/fi'
 
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [transactions, setTransactions] = useState<any[]>([])
   const [items, setItems] = useState<any[]>([])
+  const [feedbacks, setFeedbacks] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'overview' | 'feedbacks'>('overview')
+  const [feedbackFilter, setFeedbackFilter] = useState<{ status?: string; type?: string }>({})
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -23,24 +27,74 @@ export default function AdminPage() {
 
   const fetchData = async () => {
     try {
-      const [transactionsRes, itemsRes] = await Promise.all([
+      const [transactionsRes, itemsRes, feedbacksRes] = await Promise.all([
         fetch('/api/transactions'),
         fetch('/api/items'),
+        fetch('/api/feedback'),
       ])
 
       const transactionsData = await transactionsRes.json()
       const itemsData = await itemsRes.json()
+      const feedbacksData = await feedbacksRes.json()
 
       // In a real app, you'd only fetch if user is admin
       // For now, show all data
       setTransactions(transactionsData)
       setItems(itemsData)
+      setFeedbacks(Array.isArray(feedbacksData) ? feedbacksData : [])
     } catch (error) {
       console.error('Failed to fetch data:', error)
     } finally {
       setLoading(false)
     }
   }
+
+  const updateFeedbackStatus = async (feedbackId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/feedback/${feedbackId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (response.ok) {
+        fetchData()
+      }
+    } catch (error) {
+      console.error('Failed to update feedback status:', error)
+    }
+  }
+
+  const getFeedbackTypeIcon = (type: string) => {
+    switch (type) {
+      case 'BUG':
+        return FiAlertCircle
+      case 'FEATURE':
+        return FiZap
+      case 'IMPROVEMENT':
+        return FiTrendingUp
+      default:
+        return FiHelpCircle
+    }
+  }
+
+  const getFeedbackTypeColor = (type: string) => {
+    switch (type) {
+      case 'BUG':
+        return 'text-red-600 bg-red-50 dark:bg-red-900/20'
+      case 'FEATURE':
+        return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20'
+      case 'IMPROVEMENT':
+        return 'text-green-600 bg-green-50 dark:bg-green-900/20'
+      default:
+        return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20'
+    }
+  }
+
+  const filteredFeedbacks = feedbacks.filter((f) => {
+    if (feedbackFilter.status && f.status !== feedbackFilter.status) return false
+    if (feedbackFilter.type && f.type !== feedbackFilter.type) return false
+    return true
+  })
 
   if (status === 'loading' || loading) {
     return (
@@ -60,7 +114,36 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-8 dark:text-gray-100">Admin Dashboard</h1>
+
+      {/* Tabs */}
+      <div className="mb-6 border-b dark:border-gray-700">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'overview'
+                ? 'border-primary text-primary dark:text-primary-300'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('feedbacks')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'feedbacks'
+                ? 'border-primary text-primary dark:text-primary-300'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Feedbacks ({feedbacks.length})
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
 
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -234,6 +317,110 @@ export default function AdminPage() {
           ))}
         </div>
       </div>
+      )}
+
+      {activeTab === 'feedbacks' && (
+        <div className="space-y-6">
+          {/* Filters */}
+          <div className="card">
+            <div className="flex flex-wrap gap-4 items-center">
+              <div>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">Filter by Status</label>
+                <select
+                  value={feedbackFilter.status || ''}
+                  onChange={(e) => setFeedbackFilter({ ...feedbackFilter, status: e.target.value || undefined })}
+                  className="input-field"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="REVIEWED">Reviewed</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 dark:text-gray-200">Filter by Type</label>
+                <select
+                  value={feedbackFilter.type || ''}
+                  onChange={(e) => setFeedbackFilter({ ...feedbackFilter, type: e.target.value || undefined })}
+                  className="input-field"
+                >
+                  <option value="">All Types</option>
+                  <option value="BUG">Bug Report</option>
+                  <option value="FEATURE">Feature Request</option>
+                  <option value="IMPROVEMENT">Improvement</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div className="flex-1"></div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {filteredFeedbacks.length} of {feedbacks.length} feedbacks
+              </div>
+            </div>
+          </div>
+
+          {/* Feedbacks List */}
+          <div className="space-y-4">
+            {filteredFeedbacks.length === 0 ? (
+              <div className="card text-center py-12">
+                <p className="text-gray-600 dark:text-gray-300">No feedbacks found</p>
+              </div>
+            ) : (
+              filteredFeedbacks.map((feedback) => {
+                const Icon = getFeedbackTypeIcon(feedback.type)
+                return (
+                  <div key={feedback.id} className="card">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className={`p-2 rounded-lg ${getFeedbackTypeColor(feedback.type)}`}>
+                            <Icon className="text-lg" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="font-semibold text-lg dark:text-gray-100">{feedback.title}</h3>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                feedback.status === 'RESOLVED'
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                                  : feedback.status === 'REVIEWED'
+                                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                                  : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300'
+                              }`}>
+                                {feedback.status}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              {feedback.type} • {formatDistanceToNow(new Date(feedback.createdAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mt-3">
+                          {feedback.description}
+                        </p>
+                        {feedback.userEmail && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            Submitted by: {feedback.userEmail}
+                          </p>
+                        )}
+                      </div>
+                      <div className="ml-4 flex flex-col space-y-2">
+                        <select
+                          value={feedback.status}
+                          onChange={(e) => updateFeedbackStatus(feedback.id, e.target.value)}
+                          className="text-sm border rounded px-2 py-1 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                        >
+                          <option value="PENDING">Pending</option>
+                          <option value="REVIEWED">Reviewed</option>
+                          <option value="RESOLVED">Resolved</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -227,8 +227,9 @@ export default function MessagesPage() {
     : messages[0]?.sender
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-4">
+    <div className="fixed inset-0 sm:relative sm:container sm:mx-auto sm:px-4 sm:py-8 sm:max-w-4xl flex flex-col">
+      {/* Back button - hidden on mobile */}
+      <div className="hidden sm:block mb-4">
         <button
           onClick={() => router.push('/messages')}
           className="text-primary hover:text-primary-600 dark:hover:text-primary-400 mb-2"
@@ -236,11 +237,18 @@ export default function MessagesPage() {
           ← Back to conversations
         </button>
       </div>
-      <div className="card h-[calc(100vh-120px)] sm:h-[600px] flex flex-col">
+      <div className="card h-full sm:h-[600px] flex flex-col rounded-none sm:rounded-lg">
         {/* Header */}
         {otherUser && (
-          <div className="border-b dark:border-gray-700 px-6 py-4">
-            <div className="flex items-center space-x-3 mb-3">
+          <div className="border-b dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {/* Back button for mobile - inside header */}
+              <button
+                onClick={() => router.push('/messages')}
+                className="sm:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mr-2"
+              >
+                ←
+              </button>
               {otherUser.profileImage ? (
                 <img
                   src={otherUser.profileImage}
@@ -255,7 +263,7 @@ export default function MessagesPage() {
                 </div>
               )}
               <div>
-                <h2 className="text-xl font-semibold dark:text-gray-100">{otherUser.name}</h2>
+                <h2 className="text-lg sm:text-xl font-semibold dark:text-gray-100">{otherUser.name}</h2>
                 {otherUser.roomNumber && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">Room {otherUser.roomNumber}</p>
                 )}
@@ -265,7 +273,7 @@ export default function MessagesPage() {
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
           {loadingMessages && isInitialLoad ? (
             <LoadingSpinner text="Loading messages..." />
           ) : messages.length === 0 ? (
@@ -347,7 +355,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSendMessage} className="border-t dark:border-gray-700 px-6 py-4">
+        <form onSubmit={handleSendMessage} className="border-t dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex space-x-2">
             <input
               type="text"
