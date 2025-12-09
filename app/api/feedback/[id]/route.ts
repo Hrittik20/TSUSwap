@@ -12,10 +12,23 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Check if user is admin
+    const ADMIN_EMAILS = process.env.ADMIN_EMAILS
+      ? process.env.ADMIN_EMAILS.split(',').map((email) => email.trim().toLowerCase())
+      : []
+    
+    const userEmail = session.user.email.toLowerCase()
+    if (ADMIN_EMAILS.length === 0 || !ADMIN_EMAILS.includes(userEmail)) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
       )
     }
 

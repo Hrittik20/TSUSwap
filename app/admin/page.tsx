@@ -21,9 +21,26 @@ export default function AdminPage() {
     if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated') {
-      fetchData()
+      // Check if user is admin
+      checkAdminAccess()
     }
   }, [status])
+
+  const checkAdminAccess = async () => {
+    try {
+      const response = await fetch('/api/admin/check')
+      if (!response.ok) {
+        // Not admin, redirect to home
+        router.push('/')
+        return
+      }
+      // User is admin, fetch data
+      fetchData()
+    } catch (error) {
+      console.error('Failed to check admin access:', error)
+      router.push('/')
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -317,6 +334,7 @@ export default function AdminPage() {
           ))}
         </div>
       </div>
+        </>
       )}
 
       {activeTab === 'feedbacks' && (
