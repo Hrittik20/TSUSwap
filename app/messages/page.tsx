@@ -236,7 +236,7 @@ export default function MessagesPage() {
           ← Back to conversations
         </button>
       </div>
-      <div className="card h-[calc(100vh-200px)] sm:h-[600px] flex flex-col">
+      <div className="card h-[calc(100vh-120px)] sm:h-[600px] flex flex-col">
         {/* Header */}
         {otherUser && (
           <div className="border-b dark:border-gray-700 px-6 py-4">
