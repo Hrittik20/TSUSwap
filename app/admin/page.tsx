@@ -16,29 +16,50 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'feedbacks'>('overview')
   const [feedbackFilter, setFeedbackFilter] = useState<{ status?: string; type?: string }>({})
+  const [adminError, setAdminError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (status === 'loading') {
+      return // Wait for session to load
+    }
+    
     if (status === 'unauthenticated') {
+      // User is not logged in, redirect to login
       router.push('/login')
-    } else if (status === 'authenticated') {
-      // Check if user is admin
+      return
+    }
+    
+    if (status === 'authenticated' && session?.user) {
+      // User is authenticated, check if they're admin
       checkAdminAccess()
     }
-  }, [status])
+  }, [status, session])
 
   const checkAdminAccess = async () => {
     try {
+      setAdminError(null)
       const response = await fetch('/api/admin/check')
-      if (!response.ok) {
-        // Not admin, redirect to home
-        router.push('/')
+      
+      if (response.status === 401) {
+        // Not authenticated, redirect to login
+        router.push('/login')
         return
       }
+      
+      if (!response.ok) {
+        const data = await response.json()
+        // Not admin or admin not configured
+        setAdminError(data.error || 'Access denied. Admin privileges required.')
+        setLoading(false)
+        return
+      }
+      
       // User is admin, fetch data
-      fetchData()
+      await fetchData()
     } catch (error) {
       console.error('Failed to check admin access:', error)
-      router.push('/')
+      setAdminError('Failed to verify admin access. Please try again.')
+      setLoading(false)
     }
   }
 
@@ -113,10 +134,40 @@ export default function AdminPage() {
     return true
   })
 
-  if (status === 'loading' || loading) {
+  if (status === 'loading' || (loading && !adminError)) {
     return (
       <div className="container mx-auto px-4 py-8">
         <p className="text-center">Loading...</p>
+      </div>
+    )
+  }
+
+  // Show error if admin access denied
+  if (adminError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="card max-w-2xl mx-auto">
+          <div className="text-center py-8">
+            <h1 className="text-2xl font-bold mb-4 text-red-600 dark:text-red-400">Access Denied</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">{adminError}</p>
+            {adminError.includes('not configured') && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4 text-left">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-2">
+                  ⚠️ Admin access not configured
+                </p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                  To enable admin access, add your email to the <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">ADMIN_EMAILS</code> environment variable.
+                </p>
+              </div>
+            )}
+            <button
+              onClick={() => router.push('/')}
+              className="btn-primary mt-6"
+            >
+              Go to Home
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
