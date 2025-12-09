@@ -66,11 +66,23 @@ export default function RootLayout({
                     {children}
                   </main>
                   <footer className="bg-gray-800 dark:bg-gray-900 text-white py-8 mt-16">
-                    <div className="container mx-auto px-4 text-center">
-                      <p>&copy; 2025 TSUSwap. All rights reserved.</p>
-                      <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                        Secure marketplace for Tomsk State University students
-                      </p>
+                    <div className="container mx-auto px-4">
+                      <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <div className="text-center md:text-left">
+                          <p>&copy; 2025 TSUSwap. All rights reserved.</p>
+                          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                            Secure marketplace for Tomsk State University students
+                          </p>
+                        </div>
+                        <div className="flex space-x-6">
+                          <a
+                            href="/feedback"
+                            className="text-gray-300 hover:text-white transition-colors text-sm"
+                          >
+                            Feedback & Suggestions
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </footer>
                 </ToastProvider>

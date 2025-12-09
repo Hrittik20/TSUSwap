@@ -189,4 +189,25 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
+enum FeedbackType {
+  BUG
+  FEATURE
+  IMPROVEMENT
+  OTHER
+}
+
+model Feedback {
+  id            String        @id @default(cuid())
+  type          FeedbackType
+  title         String
+  description   String
+  userId        String?
+  userEmail     String?
+  status        String        @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@map("feedbacks")
+}
+
 

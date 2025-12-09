@@ -236,7 +236,7 @@ export default function MessagesPage() {
           ← Back to conversations
         </button>
       </div>
-      <div className="card h-[600px] flex flex-col">
+      <div className="card h-[calc(100vh-200px)] sm:h-[600px] flex flex-col">
         {/* Header */}
         {otherUser && (
           <div className="border-b dark:border-gray-700 px-6 py-4">
@@ -281,7 +281,7 @@ export default function MessagesPage() {
                   className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[85%] sm:max-w-[70%] rounded-lg px-3 sm:px-4 py-2 ${
                       isOwnMessage
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
@@ -313,11 +313,11 @@ export default function MessagesPage() {
                       return (
                         <>
                           {imageUrl && (
-                            <div className="mb-2">
+                            <div className="mb-2 -mx-2">
                               <img
                                 src={imageUrl}
                                 alt="Item image"
-                                className="w-48 h-48 object-cover rounded-lg"
+                                className="w-full max-w-[200px] sm:max-w-[192px] h-auto max-h-[200px] sm:max-h-[192px] object-cover rounded-lg"
                                 onError={(e) => {
                                   // Hide image if it fails to load
                                   e.currentTarget.style.display = 'none'

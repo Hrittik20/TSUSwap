@@ -72,6 +72,19 @@ export default function DashboardPage() {
 
   const activeItems = userItems.filter((item) => item.status === 'ACTIVE')
   const soldItems = userItems.filter((item) => item.status === 'SOLD')
+  
+  // Get item IDs that have PENDING transactions to exclude from regular listings
+  const pendingTransactionItemIds = new Set(
+    sales
+      .filter((t: any) => t.status === 'PENDING')
+      .map((t: any) => t.item.id)
+  )
+  
+  // Filter out items that have PENDING transactions from regular listings
+  const itemsToDisplay = userItems.filter((item) => {
+    // Don't show items that have a PENDING transaction (they're shown in the Pending Sales section)
+    return !pendingTransactionItemIds.has(item.id)
+  })
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8">
@@ -261,7 +274,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {userItems.length === 0 ? (
+            {itemsToDisplay.length === 0 && sales.filter((t: any) => t.status === 'PENDING').length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">You haven't listed any items yet</p>
                 <Link href="/items/create" className="btn-primary">
@@ -269,7 +282,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
             ) : (
-              userItems.map((item) => (
+              itemsToDisplay.map((item) => (
                 <div key={item.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700">
                   <div className="flex items-start justify-between">
                     <div className="flex space-x-4 flex-1">

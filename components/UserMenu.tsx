@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FiUser, FiLogOut, FiSettings, FiChevronDown } from 'react-icons/fi'
+import { FiUser, FiLogOut, FiSettings, FiChevronDown, FiMessageCircle } from 'react-icons/fi'
 
 export default function UserMenu() {
   const { data: session } = useSession()
@@ -70,6 +70,14 @@ export default function UserMenu() {
             >
               <FiSettings />
               <span className="text-gray-900 dark:text-gray-200">Profile</span>
+            </Link>
+            <Link
+              href="/feedback"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <FiMessageCircle />
+              <span className="text-gray-900 dark:text-gray-200">Feedback</span>
             </Link>
             <div className="border-t dark:border-gray-700 my-1"></div>
             <button
