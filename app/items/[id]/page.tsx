@@ -202,6 +202,37 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                     : `${t('items.endsIn')} ${formatDistanceToNow(new Date(item.auction.endTime), { addSuffix: true })}`}
                 </span>
               </div>
+              
+              {/* Show winner info if auction ended with bids */}
+              {auctionEnded && item.auction.bids.length > 0 && (
+                <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <p className="text-green-800 dark:text-green-200 font-medium">
+                    🎉 Winner: {item.auction.bids[0].bidder.name}
+                  </p>
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                    Winning bid: {item.auction.bids[0].amount.toLocaleString('ru-RU')} ₽
+                  </p>
+                  {session && (session.user as any)?.id === item.auction.bids[0].bidder.id && (
+                    <Link
+                      href={`/messages?userId=${item.seller.id}`}
+                      className="inline-flex items-center mt-2 text-sm text-green-700 dark:text-green-300 hover:underline"
+                    >
+                      <FiMessageSquare className="mr-1" />
+                      Contact seller to arrange meetup
+                    </Link>
+                  )}
+                </div>
+              )}
+
+              {/* Show message if auction ended with no bids */}
+              {auctionEnded && item.auction.bids.length === 0 && (
+                <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <p className="text-orange-800 dark:text-orange-200 text-sm">
+                    This auction ended with no bids. The item may be converted to a regular listing soon.
+                  </p>
+                </div>
+              )}
+
               {!auctionEnded && !isOwner && session && (
                 <form onSubmit={handleBid} className="mt-4">
                   <label className="block text-sm font-medium mb-2">{t('item.placeBid')}</label>
@@ -223,7 +254,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                       {processing ? t('item.bidding') : t('item.bidButton')}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {t('item.commission')}
                   </p>
                 </form>

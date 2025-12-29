@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FiShoppingBag, FiDollarSign, FiShield, FiUsers } from 'react-icons/fi'
+import { FiShoppingBag, FiDollarSign, FiMessageSquare, FiUsers } from 'react-icons/fi'
 import { useLanguage } from '@/components/LanguageContext'
 
 export default function Home() {
@@ -60,7 +60,7 @@ export default function Home() {
 
           <div className="text-center">
             <div className="bg-primary-100 dark:bg-primary-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiShield className="text-3xl text-primary dark:text-primary-300" />
+              <FiMessageSquare className="text-3xl text-primary dark:text-primary-300" />
             </div>
             <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('home.feature3.title')}</h3>
             <p className="text-gray-600 dark:text-gray-300">

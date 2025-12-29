@@ -19,6 +19,9 @@ model User {
   dormitory     String    // Mayak, Parus, etc.
   roomNumber    String
   phoneNumber   String?
+  // Auction limits - 2 free auctions per month
+  auctionsUsedThisMonth Int       @default(0)
+  auctionLimitResetAt   DateTime  @default(now())
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

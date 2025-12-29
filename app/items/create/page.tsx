@@ -206,21 +206,18 @@ export default function CreateItemPage() {
                 <div className="text-sm text-gray-500">No commission fees</div>
               </div>
             </label>
-            <label className="flex items-center p-4 border-2 rounded-lg cursor-not-allowed opacity-50 bg-gray-100 dark:bg-gray-800">
+            <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-primary">
               <input
                 type="radio"
                 name="listingType"
                 value="AUCTION"
                 checked={formData.listingType === 'AUCTION'}
-                onChange={(e) => {
-                  showToast('Auction feature coming soon!', 'info')
-                }}
-                disabled
+                onChange={(e) => setFormData({ ...formData, listingType: e.target.value })}
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Auction <span className="text-xs text-gray-500">(Coming Soon)</span></div>
-                <div className="text-sm text-gray-500">Cash on meet only</div>
+                <div className="font-medium">Auction</div>
+                <div className="text-sm text-gray-500">2 free per month</div>
               </div>
             </label>
           </div>
@@ -354,9 +351,9 @@ export default function CreateItemPage() {
               </select>
             </div>
 
-            <div className="bg-primary-50 p-4 rounded-lg">
-              <p className="text-sm text-primary-700">
-                <strong>Note:</strong> A 5% commission will be applied to the final sale price for auction items.
+            <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg">
+              <p className="text-sm text-primary-700 dark:text-primary-300">
+                <strong>Note:</strong> You have 2 free auctions per month. If no bids are placed, your item will automatically be converted to a regular listing at your starting price.
               </p>
             </div>
           </div>

@@ -18,6 +18,8 @@ const itemSchema = z.object({
   auctionDuration: z.number().positive().optional(), // in hours
 })
 
+const AUCTION_LIMIT_PER_MONTH = 2
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -46,6 +48,40 @@ export async function POST(request: Request) {
       )
     }
 
+    const userId = (session.user as any).id
+
+    // Check auction limits if creating an auction
+    if (data.listingType === 'AUCTION') {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { auctionsUsedThisMonth: true, auctionLimitResetAt: true }
+      })
+
+      if (user) {
+        const now = new Date()
+        const resetAt = new Date(user.auctionLimitResetAt)
+        
+        // Check if a month has passed since last reset
+        const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+        
+        if (resetAt < oneMonthAgo) {
+          // Reset the counter
+          await prisma.user.update({
+            where: { id: userId },
+            data: { 
+              auctionsUsedThisMonth: 0,
+              auctionLimitResetAt: now
+            }
+          })
+        } else if (user.auctionsUsedThisMonth >= AUCTION_LIMIT_PER_MONTH) {
+          return NextResponse.json(
+            { error: `You have reached your limit of ${AUCTION_LIMIT_PER_MONTH} free auctions this month. Your limit will reset on ${new Date(resetAt.getFullYear(), resetAt.getMonth() + 1, resetAt.getDate()).toLocaleDateString()}.` },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
     // Create item
     const item = await prisma.item.create({
       data: {
@@ -56,7 +92,7 @@ export async function POST(request: Request) {
         category: data.category,
         condition: data.condition,
         listingType: data.listingType,
-        sellerId: (session.user as any).id,
+        sellerId: userId,
         ...(data.listingType === 'AUCTION' && {
           auction: {
             create: {
@@ -79,6 +115,14 @@ export async function POST(request: Request) {
         auction: true,
       },
     })
+
+    // Increment auction counter if auction was created
+    if (data.listingType === 'AUCTION') {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { auctionsUsedThisMonth: { increment: 1 } }
+      })
+    }
 
     return NextResponse.json(item, { status: 201 })
   } catch (error) {
