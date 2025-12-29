@@ -15,6 +15,7 @@ model User {
   name          String
   password      String
   profileImage  String?   // Profile picture URL
+  university    String    @default("tsu") // tsu, etc. - for future expansion
   dormitory     String    // Mayak, Parus, etc.
   roomNumber    String
   phoneNumber   String?

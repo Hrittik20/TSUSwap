@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FiClock, FiTag, FiSearch, FiAlertCircle } from 'react-icons/fi'
+import { FiClock, FiTag, FiSearch, FiAlertCircle, FiGlobe } from 'react-icons/fi'
+import { UNIVERSITIES, getUniversityShortLabel } from '@/lib/universities'
 import { formatDistanceToNow } from 'date-fns'
 import { isLongListed } from '@/lib/utils'
 
@@ -19,6 +20,7 @@ interface Item {
   seller: {
     name: string
     roomNumber: string
+    university?: string
   }
   auction?: {
     currentPrice: number
@@ -35,6 +37,7 @@ export default function ItemsPage() {
     search: '',
     category: '',
     listingType: '',
+    university: '', // Empty = all universities
   })
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function ItemsPage() {
       if (filter.search) params.append('search', filter.search)
       if (filter.category) params.append('category', filter.category)
       if (filter.listingType) params.append('listingType', filter.listingType)
+      if (filter.university) params.append('university', filter.university)
 
       const response = await fetch(`/api/items?${params}`)
       const data = await response.json()
@@ -77,7 +81,7 @@ export default function ItemsPage() {
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 dark:text-gray-100">Browse Items</h1>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -110,6 +114,19 @@ export default function ItemsPage() {
             <option value="">All Types</option>
             <option value="REGULAR">Buy Now</option>
             <option value="AUCTION">Auction</option>
+          </select>
+
+          <select
+            className="input-field"
+            value={filter.university}
+            onChange={(e) => setFilter({ ...filter, university: e.target.value })}
+          >
+            <option value="">All Universities</option>
+            {UNIVERSITIES.map((uni) => (
+              <option key={uni.value} value={uni.value}>
+                {uni.shortLabel}
+              </option>
+            ))}
           </select>
         </div>
       </div>

@@ -43,6 +43,7 @@ export const translations = {
     'items.search': 'Search items...',
     'items.allCategories': 'All Categories',
     'items.allTypes': 'All Types',
+    'items.allUniversities': 'All Universities',
     'items.buyNow': 'Buy Now',
     'items.auction': 'Auction',
     'items.loading': 'Loading items...',
@@ -134,6 +135,7 @@ export const translations = {
     'auth.joinTSU': 'Join TSUSwap',
     'auth.createAccount': 'Create your account and start trading',
     'auth.fullName': 'Full Name',
+    'auth.university': 'University',
     'auth.universityEmail': 'TSU Email',
     'auth.roomNumber': 'Room Number',
     'auth.roomPlaceholder': 'e.g., A-204',
@@ -143,6 +145,7 @@ export const translations = {
     'auth.creatingAccount': 'Creating account...',
     'auth.hasAccount': 'Already have an account?',
     'auth.signInLink': 'Sign in',
+    'auth.moreUniversitiesSoon': 'More universities coming soon',
     
     // Categories
     'category.electronics': 'Electronics',
@@ -231,6 +234,7 @@ export const translations = {
     'items.search': 'Поиск товаров...',
     'items.allCategories': 'Все категории',
     'items.allTypes': 'Все типы',
+    'items.allUniversities': 'Все университеты',
     'items.buyNow': 'Купить сейчас',
     'items.auction': 'Аукцион',
     'items.loading': 'Загрузка товаров...',
@@ -322,6 +326,7 @@ export const translations = {
     'auth.joinTSU': 'Присоединиться к TSUSwap',
     'auth.createAccount': 'Создайте аккаунт и начните торговать',
     'auth.fullName': 'Полное имя',
+    'auth.university': 'Университет',
     'auth.universityEmail': 'Email ТГУ',
     'auth.roomNumber': 'Номер комнаты',
     'auth.roomPlaceholder': 'например, А-204',
@@ -331,6 +336,7 @@ export const translations = {
     'auth.creatingAccount': 'Создание аккаунта...',
     'auth.hasAccount': 'Уже есть аккаунт?',
     'auth.signInLink': 'Войти',
+    'auth.moreUniversitiesSoon': 'Больше университетов появится в будущем',
     
     // Categories
     'category.electronics': 'Электроника',

@@ -103,12 +103,14 @@ export async function GET(request: Request) {
     const category = searchParams.get('category')
     const listingType = searchParams.get('listingType')
     const search = searchParams.get('search')
+    const university = searchParams.get('university')
 
     const items = await prisma.item.findMany({
       where: {
         status: 'ACTIVE',
         ...(category && { category }),
         ...(listingType && { listingType: listingType as any }),
+        ...(university && { seller: { university } }),
         ...(search && {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
@@ -122,6 +124,7 @@ export async function GET(request: Request) {
             id: true,
             name: true,
             roomNumber: true,
+            university: true,
           },
         },
         auction: {

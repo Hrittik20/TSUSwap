@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { DORMITORIES } from '@/lib/dormitories'
+import { UNIVERSITIES } from '@/lib/universities'
 import { useLanguage } from '@/components/LanguageContext'
 import { useToast } from '@/components/ToastProvider'
 
@@ -16,6 +17,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     name: '',
+    university: 'tsu', // Default to TSU
     dormitory: '',
     roomNumber: '',
     phoneNumber: '',
@@ -120,6 +122,28 @@ export default function RegisterPage() {
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Only @gmail.com or @googlemail.com addresses are allowed
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="university" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                University / Университет
+              </label>
+              <select
+                id="university"
+                required
+                className="input-field"
+                value={formData.university}
+                onChange={(e) => setFormData({ ...formData, university: e.target.value })}
+              >
+                {UNIVERSITIES.map((uni) => (
+                  <option key={uni.value} value={uni.value}>
+                    {language === 'ru' ? uni.labelRu : uni.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {language === 'ru' ? 'Больше университетов появится в будущем' : 'More universities coming soon'}
               </p>
             </div>
 
