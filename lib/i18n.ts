@@ -182,6 +182,22 @@ export const translations = {
     'share.copyLink': 'Copy Link',
     'share.linkCopied': 'Link Copied!',
     
+    // Report
+    'report.title': 'Report Item',
+    'report.button': 'Report',
+    'report.reason': 'Reason',
+    'report.selectReason': 'Select a reason',
+    'report.inappropriate': 'Inappropriate content',
+    'report.scam': 'Potential scam',
+    'report.fake': 'Fake or misleading',
+    'report.spam': 'Spam',
+    'report.other': 'Other',
+    'report.additionalDetails': 'Additional details (optional)',
+    'report.submit': 'Submit Report',
+    'report.submitting': 'Submitting...',
+    'report.success': 'Report submitted successfully. Thank you for helping keep our community safe!',
+    'report.warning': 'Please select a reason for reporting this item. False reports may result in account restrictions.',
+    
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Something went wrong',
@@ -372,6 +388,22 @@ export const translations = {
     'share.emailDesc': 'Отправить по почте',
     'share.copyLink': 'Копировать ссылку',
     'share.linkCopied': 'Ссылка скопирована!',
+    
+    // Report
+    'report.title': 'Пожаловаться на товар',
+    'report.button': 'Пожаловаться',
+    'report.reason': 'Причина',
+    'report.selectReason': 'Выберите причину',
+    'report.inappropriate': 'Неприемлемый контент',
+    'report.scam': 'Возможное мошенничество',
+    'report.fake': 'Ложная информация',
+    'report.spam': 'Спам',
+    'report.other': 'Другое',
+    'report.additionalDetails': 'Дополнительные детали (необязательно)',
+    'report.submit': 'Отправить жалобу',
+    'report.submitting': 'Отправка...',
+    'report.success': 'Жалоба отправлена. Спасибо, что помогаете сохранить безопасность сообщества!',
+    'report.warning': 'Пожалуйста, выберите причину жалобы. Ложные жалобы могут привести к ограничению аккаунта.',
     
     // Common
     'common.loading': 'Загрузка...',

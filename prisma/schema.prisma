@@ -33,6 +33,7 @@ model User {
   sentMessages  Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
   notifications Notification[]
+  reports       Report[]
   
   @@map("users")
 }
@@ -67,8 +68,41 @@ model Item {
   seller        User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   auction       Auction?
   transactions  Transaction[]
+  reports       Report[]
   
   @@map("items")
+}
+
+enum ReportReason {
+  INAPPROPRIATE
+  SCAM
+  FAKE
+  SPAM
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id            String        @id @default(cuid())
+  reason        ReportReason
+  description   String?
+  status        ReportStatus  @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  itemId        String
+  item          Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  reporterId    String
+  reporter      User          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  @@map("reports")
 }
 
 model Auction {
@@ -162,6 +196,7 @@ enum NotificationType {
   TRANSACTION_CANCELLED
   BID_PLACED
   AUCTION_ENDED
+  ITEM_REMOVED
 }
 
 model Notification {

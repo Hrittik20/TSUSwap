@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FiClock, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiAlertCircle } from 'react-icons/fi'
+import { FiClock, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiAlertCircle, FiFlag } from 'react-icons/fi'
 import { formatDistanceToNow } from 'date-fns'
 import ShareButton from '@/components/ShareButton'
 import { useLanguage } from '@/components/LanguageContext'
@@ -23,6 +23,10 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'CASH_ON_MEET'>('CASH_ON_MEET')
   const [processing, setProcessing] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showReportModal, setShowReportModal] = useState(false)
+  const [reportReason, setReportReason] = useState<string>('')
+  const [reportDescription, setReportDescription] = useState('')
+  const [reportSubmitting, setReportSubmitting] = useState(false)
 
   useEffect(() => {
     fetchItem()
@@ -115,6 +119,46 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
     }
   }
 
+  const handleReport = async () => {
+    if (!session) {
+      router.push('/login')
+      return
+    }
+
+    if (!reportReason) {
+      showToast('Please select a reason for reporting', 'error')
+      return
+    }
+
+    setReportSubmitting(true)
+    try {
+      const response = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: item.id,
+          reason: reportReason,
+          description: reportDescription || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        showToast(data.error || 'Failed to submit report', 'error')
+        return
+      }
+
+      showToast('Report submitted successfully. Thank you for helping keep our community safe!', 'success')
+      setShowReportModal(false)
+      setReportReason('')
+      setReportDescription('')
+    } catch (error) {
+      showToast('Failed to submit report', 'error')
+    } finally {
+      setReportSubmitting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -176,7 +220,19 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                 {item.category}
               </span>
             </div>
-            <ShareButton item={item} />
+            <div className="flex items-center gap-2">
+              <ShareButton item={item} />
+              {!isOwner && session && (
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  title="Report this item"
+                >
+                  <FiFlag size={16} />
+                  <span className="hidden sm:inline">Report</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <h1 className="text-3xl font-bold mb-4">{item.title}</h1>
@@ -412,6 +468,73 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
         confirmText="Yes, Purchase"
         cancelText="Cancel"
       />
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold mb-4 dark:text-gray-100">Report Item</h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+              Please select a reason for reporting this item. False reports may result in account restrictions.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Reason *
+                </label>
+                <select
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  className="input-field"
+                  required
+                >
+                  <option value="">Select a reason</option>
+                  <option value="INAPPROPRIATE">Inappropriate content</option>
+                  <option value="SCAM">Potential scam</option>
+                  <option value="FAKE">Fake or misleading</option>
+                  <option value="SPAM">Spam</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Additional details (optional)
+                </label>
+                <textarea
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                  className="input-field"
+                  rows={3}
+                  placeholder="Please provide any additional information..."
+                />
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowReportModal(false)
+                    setReportReason('')
+                    setReportDescription('')
+                  }}
+                  className="flex-1 btn-secondary"
+                  disabled={reportSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReport}
+                  disabled={reportSubmitting || !reportReason}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
